@@ -1,7 +1,7 @@
 [project]
 name = "mixer-assist"
 version = "0.1.0"
-description = "Add your description here"
+description = "MCP server for Behringer/Midas mixers with REPL and client library"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
