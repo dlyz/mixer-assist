@@ -10,20 +10,21 @@ This project includes:
 
 ## MCP config example
 
+This one should work with Claude Desktop, for example. Probably with other MCP clients too.
+
 ```json
 {
 	"mcpServers": {
 		"x-air-mixer": {
-			"type": "stdio",
 			"command": "uv",
 			"args": [
+				"--directory",
+				"/full/path/to/mixer-assist",
 				"run",
-				"python",
 				"mcp_server.py",
 				"--ip",
 				"XXX.XXX.XXX.XXX"
 			],
-			"cwd": "path/to/mixer-assist",
 		}
 	}
 }
