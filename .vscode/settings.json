@@ -1,0 +1,90 @@
+{
+	"debugpy.debugJustMyCode": false,
+	"python.analysis.typeCheckingMode": "standard",
+	"python.analysis.importFormat": "relative",
+
+	// ruff formatter and linter
+	"ruff.nativeServer": "on",
+	//"ruff.configuration": "./.vscode/ruff.toml",
+	"ruff.exclude": [".pixi", ".venv"],
+	"ruff.lineLength": 120,
+	"notebook.formatOnSave.enabled": true,
+	"notebook.codeActionsOnSave": {
+	  //"notebook.source.fixAll": "explicit",
+	  //"notebook.source.organizeImports": "explicit"
+	},
+	"[python]": {
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			//"source.fixAll": "explicit",
+			//"source.organizeImports": "explicit"
+		},
+		"editor.defaultFormatter": "charliermarsh.ruff"
+	},
+
+	"workbench.editor.customLabels.patterns": {
+		"**/__init__.py": "${dirname(0)}/__init__.py",
+
+		"*/.pixi/envs/default/Lib/site-packages/*/*/*/*/*/**": "${dirname(-7)}: ${dirname(-8)}/${dirname(-9)}/.../${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/site-packages/*/*/*/*": "${dirname(-7)}: ${dirname(-8)}/${dirname(-9)}/${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/site-packages/*/*/*": "${dirname(-7)}: ${dirname(-8)}/${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/site-packages/*/*": "${dirname(-7)}: ${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/site-packages/*": "${dirname(-6)}: ${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/*/*/*/*/**": "${dirname(-6)}: ${dirname(-7)}/.../${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/*/*/*": "${dirname(-6)}: ${dirname(-7)}/${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/*/*": "${dirname(-6)}: ${filename}.${extname}",
+		"*/.pixi/envs/default/Lib/*": "${dirname(-5)}: ${filename}.${extname}",
+
+		"*/.pixi/envs/*/Lib/site-packages/*/*/*/*/*/**": "[${dirname(-4)}] ${dirname(-7)}: ${dirname(-8)}/${dirname(-9)}/.../${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/site-packages/*/*/*/*": "[${dirname(-4)}] ${dirname(-7)}: ${dirname(-8)}/${dirname(-9)}/${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/site-packages/*/*/*": "[${dirname(-4)}] ${dirname(-7)}: ${dirname(-8)}/${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/site-packages/*/*": "[${dirname(-4)}] ${dirname(-7)}: ${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/site-packages/*": "[${dirname(-4)}] ${dirname(-6)}: ${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/*/*/*/*/**": "[${dirname(-4)}] ${dirname(-6)}: ${dirname(-7)}/.../${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/*/*/*": "[${dirname(-4)}] ${dirname(-6)}: ${dirname(-7)}/${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/*/*": "[${dirname(-4)}] ${dirname(-6)}: ${filename}.${extname}",
+		"*/.pixi/envs/*/Lib/*": "[${dirname(-4)}] ${dirname(-5)}: ${filename}.${extname}",
+
+		// linux
+		"*/.pixi/envs/default/lib/python*/site-packages/*/*/*/*/*/**": "${dirname(-8)}: ${dirname(-9)}/${dirname(-10)}/.../${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/site-packages/*/*/*/*": "${dirname(-8)}: ${dirname(-9)}/${dirname(-10)}/${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/site-packages/*/*/*": "${dirname(-8)}: ${dirname(-9)}/${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/site-packages/*/*": "${dirname(-8)}: ${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/site-packages/*": "${dirname(-7)}: ${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/*/*/*/*/**": "${dirname(-7)}: ${dirname(-8)}/.../${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/*/*/*": "${dirname(-7)}: ${dirname(-8)}/${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/*/*": "${dirname(-7)}: ${filename}.${extname}",
+		"*/.pixi/envs/default/lib/python*/*": "${dirname(-5)}: ${filename}.${extname}",
+
+		"*/.pixi/envs/*/lib/python*/site-packages/*/*/*/*/*/**": "[${dirname(-4)}] ${dirname(-8)}: ${dirname(-9)}/${dirname(-10)}/.../${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/site-packages/*/*/*/*": "[${dirname(-4)}] ${dirname(-8)}: ${dirname(-9)}/${dirname(-10)}/${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/site-packages/*/*/*": "[${dirname(-4)}] ${dirname(-8)}: ${dirname(-9)}/${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/site-packages/*/*": "[${dirname(-4)}] ${dirname(-8)}: ${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/site-packages/*": "[${dirname(-4)}] ${dirname(-7)}: ${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/*/*/*/*/**": "[${dirname(-4)}] ${dirname(-7)}: ${dirname(-8)}/.../${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/*/*/*": "[${dirname(-4)}] ${dirname(-7)}: ${dirname(-8)}/${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/*/*": "[${dirname(-4)}] ${dirname(-7)}: ${filename}.${extname}",
+		"*/.pixi/envs/*/lib/python*/*": "[${dirname(-4)}] ${dirname(-5)}: ${filename}.${extname}",
+	},
+
+	"python.analysis.packageIndexDepths": [
+		{
+			"name": "pythonosc",
+			"depth": 5,
+			"includeAllSymbols": true
+		}
+	],
+	"cSpell.words": [
+		"headamp",
+		"Sidechain"
+	],
+	"python.testing.unittestEnabled": false,
+	"python.testing.pytestEnabled": true,
+	"python.testing.pytestArgs": [
+		".",
+		"-rP", // show stdout even for successful tests
+		"-o",
+		"pythonpath=\"${workspaceFolder}\""
+	],
+
+}

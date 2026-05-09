@@ -1,0 +1,8 @@
+__pycache__
+.venv
+/.continue
+/.roo
+.mixer_assist_history
+.env
+
+/references
