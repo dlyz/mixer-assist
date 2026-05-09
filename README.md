@@ -8,6 +8,38 @@ This project includes:
 - REPL where you can do the same using console interface.
 - xair_client python library, that you can use to write scripts with full type checker support, including autocompletion.
 
+## MCP config example
+
+```json
+{
+	"mcpServers": {
+		"x-air-mixer": {
+			"type": "stdio",
+			"command": "uv",
+			"args": [
+				"run",
+				"python",
+				"mcp_server.py",
+				"--ip",
+				"XXX.XXX.XXX.XXX"
+			],
+			"cwd": "path/to/mixer-assist",
+		}
+	}
+}
+```
+
+## REPL
+
+```cmd
+uv run python repl.py --ip XXX.XXX.XXX.XXX
+```
+
+You can navigate the parameter tree (common path syntax works, like absolute paths starts with `/`, `.` and `..` works as usual).
+`ls` command lists children nodes in the current nodes, including current parameter values.
+`ds` command is like `ls`, but with descriptions for the node and it's children.
+`<path> = <value>` could be used to set new value for a parameter.
+
 ## Constraints
 
 - Tested only on Midas MR-18 FW 1.25
