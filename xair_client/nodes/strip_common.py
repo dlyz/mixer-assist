@@ -56,6 +56,14 @@ class InsertFxSlot(IntEnum):
     FX4B = 8
 
 
+class StereoInsertFxSlot(IntEnum):
+    OFF = 0
+    FX1 = 1
+    FX2 = 2
+    FX3 = 3
+    FX4 = 4
+
+
 class StripInsert(MixerNode):
     enabled = BoolProperty(
         "on", description="For insert to take effect it is also required to activate insert mode on fx itself."

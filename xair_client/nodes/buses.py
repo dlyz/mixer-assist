@@ -5,6 +5,7 @@ from typing import override
 from ..properties.fader_pan import FaderProperty, PanProperty
 
 from .strip_common import (
+    StereoInsertFxSlot,
     StripConfig,
     StripDyn,
     StripEqBand,
@@ -140,6 +141,16 @@ class Buses(MixerCollectionNode[Bus]):
             self.item_count = self.mixer_model.num_bus
 
 
+class MainLRInsert(BusInsert):
+    fx_slot = EnumIntProperty("sel", StereoInsertFxSlot)
+
+
+class MainLRDyn(StripDyn):
+    # this is not ideal hack: the property exist in the type, but disabled.
+    # kept as is cause not sure it worth branching class hierarchy
+    disabled_children_names = StripDyn.disabled_children_names.union(["sidechain_key_source"])
+
+
 class MainLRMix(MixerNode):
     description = textwrap.dedent(
         """
@@ -153,16 +164,10 @@ class MainLRMix(MixerNode):
     pan = PanProperty("pan")
 
 
-class MainLRDyn(StripDyn):
-    # this is not ideal hack: the property exist in the type, but disabled.
-    # kept as is cause not sure it worth branching class hierarchy
-    disabled_children_names = StripDyn.disabled_children_names.union(["sidechain_key_source"])
-
-
 class MainLR(MixerNode):
     config = MixerNodeFactory("config", BusConfig)
-    insert = MixerNodeFactory("insert", BusInsert)
+    insert = MixerNodeFactory("insert", MainLRInsert)
     eq = MixerNodeFactory("eq", BusEq)
-    # geq = MixerNodeFactory("geq", BusGeq)
+    graphic_eq = MixerNodeFactory("geq", BusGraphicEQ)
     dyn = MixerNodeFactory("dyn", MainLRDyn)
     mix = MixerNodeFactory("mix", MainLRMix)
