@@ -9,49 +9,67 @@ T = TypeVar("T")
 E = TypeVar("E", bound=IntEnum)
 
 
-class SimpleMixerProperty(MixerProperty[T], abc.ABC):
-    value_type: type[T]
+class StringProperty(MixerProperty[str]):
+    def __init__(
+        self,
+        path_segment: str,
+        max_len: int,
+        *,
+        min_len: int = 0,
+        writable: bool = True,
+        description: str | None = None,
+    ):
+        super().__init__(path_segment, writable=writable)
+        self.min_len = min_len
+        self.max_len = max_len
+        self.descriptor = MixerPropDescriptor(
+            type="str",
+            constraints=f"len in range [{min_len}, {max_len}]",
+            description=description,
+        )
 
+    @override
+    def make_node_descriptor(self, parent: MixerNode):
+        return self.descriptor
+
+    def _validate_value(self, value: str):
+        if not self.min_len <= len(value) <= self.max_len:
+            raise ValueError(f"{self.name} length must be in range {self.min_len}..{self.max_len}, got {len(value)}")
+
+    @override
+    def parse(self, value: str) -> str:
+        self._validate_value(value)
+        return value
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> str:
+        value = str(raw)
+        self._validate_value(value)
+        return value
+
+    @override
+    def encode(self, value: str, instance: MixerNode) -> Any:
+        self._validate_value(value)
+        return value
+
+
+class BoolProperty(MixerProperty[bool]):
     def __init__(
         self,
         path_segment: str,
         *,
         writable: bool = True,
-        units: str | None = None,
-        constraints: str | None = None,
         description: str | None = None,
     ):
         super().__init__(path_segment, writable=writable)
         self.descriptor = MixerPropDescriptor(
-            type=self.value_type.__name__,
-            units=units,
-            constraints=constraints,
+            type="bool",
             description=description,
         )
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def make_node_descriptor(self, parent: MixerNode):
         return self.descriptor
-
-    @override
-    def parse(self, value: str) -> T:
-        return self.value_type(value)  # pyright: ignore[reportCallIssue]
-
-    @override
-    def decode(self, raw: Any, instance: MixerNode) -> T:
-        return self.value_type(raw)  # pyright: ignore[reportCallIssue]
-
-    @override
-    def encode(self, value: T, instance: MixerNode) -> Any:
-        return value
-
-
-class StringProperty(SimpleMixerProperty[str]):
-    value_type = str
-
-
-class BoolProperty(SimpleMixerProperty[bool]):
-    value_type = bool
 
     @override
     def parse(self, value: str) -> bool:

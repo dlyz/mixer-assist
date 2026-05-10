@@ -40,7 +40,7 @@ class StripColor(IntEnum):
 class StripConfig(MixerNode):
     description = "Strip name and color."
 
-    name = StringProperty("name")
+    name = StringProperty("name", max_len=12)
     color = EnumIntProperty("color", StripColor)
 
 
