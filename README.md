@@ -59,6 +59,5 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 ## TODO
 
-- Test the problem with all fx types changes (returns incorrect types after the change, but next read is ok).
 - Figure out how stereo/dual fx inserts work for one insert, for two inserts, for one stereo insert, for mono/stereo send/return. Update descriptions accordingly.
 - 'Path' term is used for internal OSC commands as well as for external api. That leads to confusion in the code and in some error messages that will mention internal paths.

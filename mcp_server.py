@@ -44,7 +44,8 @@ and want to get mixer parameter values without excessive information.
 
 SET_PARAMETERS_TOOL_DESCRIPTION = """
 Sets provided values for selected parameters.
-You don't have to read parameters manually after setting values: their actual values will be returned as a result of this tool call.
+Usually you don't have to read parameters manually afterwards: their actual values will be returned as a result of this tool call.
+Only try to read them if the write returned values that you haven't expected (sometimes there is a small lag).
 Be sure to consult parameters description (type and constraints) using describe-node before setting any values.
 """
 
