@@ -8,6 +8,8 @@ This project includes:
 - REPL where you can do the same using console interface.
 - xair_client python library, that you can use to write scripts with full type checker support, including autocompletion.
 
+Code is mostly written/rewritten by hand, only unimportant parts may be fully ai-generated.
+
 ## MCP config example
 
 This one should work with Claude Desktop, for example. Probably with other MCP clients too.

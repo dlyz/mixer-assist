@@ -64,11 +64,12 @@ class ReplHistory(FileHistory):
             return None
         if command in {"exit", "quit", ":q"}:
             return None
+        if command in {"raw"}:
+            return text
 
-        eq_index = text.find("=")
-        if eq_index != -1:
-            raw_path = text[:eq_index].strip()
-            value = text[eq_index + 1 :].strip()
+        set_cmd_args = [s.strip() for s in text.split("=", maxsplit=1)]
+        if len(set_cmd_args) > 1:
+            raw_path, value = set_cmd_args
             absolute_path = _resolve_path(raw_path, self._get_current_path()) if raw_path else self._get_current_path()
             return f"{absolute_path} = {value}"
 
@@ -155,7 +156,7 @@ def main():
 
         while True:
             try:
-                line = session.prompt(HTML(f"<yellow>{current_path}></yellow> ")).strip()
+                line: str = session.prompt(HTML(f"<yellow>{current_path}></yellow> ")).strip()
             except KeyboardInterrupt:
                 print("^C")
                 continue
@@ -169,29 +170,38 @@ def main():
                 break
 
             try:
-                if line in ("ls", "ds") or line.startswith("ls ") or line.startswith("ds "):
-                    raw_path = line[2:].strip()
-                    target_path = _resolve_path(raw_path, current_path) if raw_path else current_path
-                    print(service.expand_node(target_path, verbose=line[0] == "d"))
-                    continue
+                command_split = line.split(maxsplit=1)
+                command = command_split[0].lower()
+                command_args = command_split[1].strip() if len(command_split) > 1 else ""
 
-                eq_index = line.find("=")
-                if eq_index != -1:
-                    raw_path = line[:eq_index].strip()
-                    value = line[eq_index + 1 :].strip()
-                    target_path = _resolve_path(raw_path, current_path) if raw_path else current_path
+                if command == "raw":
+                    raw_path = command_args
+                    result = client.read(raw_path)
+                    print(f"raw {raw_path} = {result}")
+                else:
+                    if command in {"ls", "ds"}:
+                        raw_path = command_args
+                        target_path = _resolve_path(raw_path, current_path) if raw_path else current_path
+                        print(service.expand_node(target_path, verbose=line[0] == "d"))
+                        continue
 
-                    if not isinstance(service.resolve_node(target_path), MixerPropertyNode):
-                        raise ValueError(f"path is not a mixer parameter: '{target_path}'")
+                    set_cmd_args = [s.strip() for s in line.split("=", maxsplit=1)]
+                    if len(set_cmd_args) > 1:
+                        raw_path, value = set_cmd_args
 
-                    print(service.set_parameter(target_path, value))
-                    continue
+                        target_path = _resolve_path(raw_path, current_path) if raw_path else current_path
 
-                target_path = _resolve_path(line, current_path)
-                service.resolve_node(target_path)
-                current_path = target_path
+                        if not isinstance(service.resolve_node(target_path), MixerPropertyNode):
+                            raise ValueError(f"path is not a mixer parameter: '{target_path}'")
 
-                print(service.expand_node(target_path, verbose=False))
+                        print(service.set_parameter(target_path, value))
+                        continue
+
+                    target_path = _resolve_path(line, current_path)
+                    service.resolve_node(target_path)
+                    current_path = target_path
+
+                    print(service.expand_node(target_path, verbose=False))
 
             except Exception as exc:
                 print(f"error: {exc}")
