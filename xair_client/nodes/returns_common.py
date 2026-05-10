@@ -23,7 +23,7 @@ class ReturnStripBusSend(MixerNode):
         INPUT = 0
 
         # 1: After the Input stage but before the EQ.
-        # Includes Polarity/Phase and High Pass Filter (HPF) and Gate.
+        # Includes Polarity/Phase and High Pass Filter (HPF, low cut) and Gate.
         PRE_EQ = 1
 
         # 2: After the 4-band EQ but before the Dynamics (Compressor).
@@ -44,7 +44,7 @@ class ReturnStripBusSend(MixerNode):
     level = FaderProperty("level", description="Channel fader level for the bus. Ignored when tap is SUB_GROUP.")
     pan = PanProperty(
         "pan",
-        description="Effective only when current bus and the next one are joined into stereo-pair. Can not be set from even buses.",
+        description="Effective only when current bus and the next one are joined into a stereo-pair. The pan value set on the odd bus applies to the signal within that pair; pan can not be accessed from even buses.",
     )
     tap = EnumIntProperty(
         "tap",
@@ -53,7 +53,7 @@ class ReturnStripBusSend(MixerNode):
     )
     send_to_subgroup = BoolProperty(
         "grpon",
-        description="Effective only when tap is set to SUB_GROUP, when bus becomes a subgroup. Determines whether the channel is sent to the bus.",
+        description="Effective only when tap is set to SUB_GROUP. When a bus is used as a subgroup, this flag determines whether this channel is routed into it.",
     )
 
 
@@ -82,7 +82,7 @@ class ReturnStripFxSend(MixerNode):
         INPUT = 0
 
         # 1: After the Input stage but before the EQ.
-        # Includes Polarity/Phase and High Pass Filter (HPF) and Gate.
+        # Includes Polarity/Phase and High Pass Filter (HPF, low cut) and Gate.
         PRE_EQ = 1
 
         # 2: After the 4-band EQ but before the Dynamics (Compressor).

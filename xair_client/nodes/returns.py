@@ -19,16 +19,8 @@ class ReturnConfig(StripConfig):
 
 
 class ReturnPreamp(MixerNode):
-    description = textwrap.dedent(
-        """
-        Fx/usb source switch, usb trim level.
-        """
-    )
+    use_usb_input = BoolProperty("rtnsw")
 
-    use_usb_input = BoolProperty(
-        "rtnsw",
-        description="True if the channel will receive signal from usb return, false - if from fx effect. The exact usb source is set in return channel config section.",
-    )
     usb_trim = LinearFloatProperty(
         "rtntrim",
         -18.0,
@@ -67,10 +59,27 @@ class Return(MixerNode):
     mix = MixerNodeFactory("mix", ReturnMix)
 
 
-class FxReturns(MixerCollectionNode[Return]):
+class FxReturnPreamp(ReturnPreamp):
+    description = textwrap.dedent(
+        """
+        Fx/usb source switch, usb trim level.
+        """
+    )
+
+    use_usb_input = BoolProperty(
+        "rtnsw",
+        description="True if the return strip will receive signal from a USB return (source set in this strip's config section), false if it will receive signal from the FX effect assigned to this return slot.",
+    )
+
+
+class FxReturn(Return):
+    preamp = MixerNodeFactory("preamp", FxReturnPreamp)
+
+
+class FxReturns(MixerCollectionNode[FxReturn]):
     description = "FX return channels settings."
 
-    item_type = Return
+    item_type = FxReturn
     item_num_width = 1
 
     @override
@@ -79,7 +88,7 @@ class FxReturns(MixerCollectionNode[Return]):
             self.item_count = self.mixer_model.num_fx
 
 
-class AuxReturnPreamp(MixerNode):
+class AuxReturnPreamp(ReturnPreamp):
     description = textwrap.dedent(
         """
         Analog/Usb source switch, usb trim level.
@@ -91,17 +100,7 @@ class AuxReturnPreamp(MixerNode):
         "rtnsw",
         description="True if the channel will receive signal from usb return, false - if from analog input. The exact input is set in channel's config section.",
     )
-    usb_trim = LinearFloatProperty(
-        "rtntrim",
-        -18.0,
-        18.0,
-        decimals=1,
-        units="dB",
-        description="Usable only if use_usb_input is true.",
-    )
 
 
 class AuxReturn(Return):
-    description = "Aux return channel settings."
-
     preamp = MixerNodeFactory("preamp", AuxReturnPreamp)

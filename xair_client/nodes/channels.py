@@ -65,8 +65,8 @@ class ChannelPreamp(MixerNode):
         description="Usable only if use_usb_input is true.",
     )
     invert_phase = BoolProperty("invert")
-    high_pass_on = BoolProperty("hpon")
-    high_pass_freq = LogFloatProperty("hpf", 20.0, 400.0, decimals=1, units="Hz")
+    low_cut_on = BoolProperty("hpon")
+    low_cut_freq = LogFloatProperty("hpf", 20.0, 400.0, decimals=1, units="Hz")
 
 
 class ChannelGate(MixerNode):
@@ -96,7 +96,7 @@ class ChannelGate(MixerNode):
 
 
 class ChannelEq(ReturnStripEq):
-    description = "Main locut (hi pass) could be found in channel's preamp section."
+    description = "Eq for the channel. Low cut (aka HPF) is separate and could be found in channel's preamp section."
 
 
 class ChannelDyn(StripDyn):
@@ -135,7 +135,12 @@ class Channel(MixerNode):
 
 
 class Channels(MixerCollectionNode[Channel]):
-    description = """Mixer channels settings including mixes for each bus."""
+    description = textwrap.dedent(
+        """
+        Mixer channel settings.
+        Each channel contains its own send levels and tap settings for every bus and FX send — this is the canonical place to configure the full monitor and effects mix, not the bus or FX send strips themselves.
+        """
+    )
     item_type = Channel
 
     @override

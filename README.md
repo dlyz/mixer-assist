@@ -47,7 +47,7 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 - Tested only on Midas MR-18 FW 1.25
 - Not all available parameters and operations are implemented yet.
-  See [OSC commands](https://behringer.world/wiki/doku.php?id=x-air_osc), not implemented: Action, Preferences, Snapshots, Status.
+  See [OSC commands](https://behringer.world/wiki/doku.php?id=x-air_osc), not implemented: Action, Preferences, Snapshots, Status, Configuration.
 - Some descriptions may be inaccurate or inadequately precise for LLMs.
 - At this stage, API is a subject to change.
 
