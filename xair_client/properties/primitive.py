@@ -2,7 +2,7 @@ import abc
 import math
 from enum import IntEnum
 from typing import Any, TypeVar, override
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
 
 T = TypeVar("T")
@@ -12,7 +12,7 @@ E = TypeVar("E", bound=IntEnum)
 class StringProperty(MixerProperty[str]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         max_len: int,
         *,
         min_len: int = 0,
@@ -56,7 +56,7 @@ class StringProperty(MixerProperty[str]):
 class BoolProperty(MixerProperty[bool]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
         description: str | None = None,
@@ -102,7 +102,7 @@ class InvertedBoolProperty(BoolProperty):
 class EnumIntProperty(MixerProperty[E]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         enum_type: type[E],
         *,
         writable: bool = True,
@@ -158,7 +158,7 @@ class EnumIntProperty(MixerProperty[E]):
 class FloatProperty(MixerProperty[float]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         minimum: float,
         maximum: float,
         *,
@@ -255,7 +255,7 @@ class LinearFloatProperty(FloatProperty):
 class LogFloatProperty(FloatProperty):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         minimum: float,
         maximum: float,
         *,

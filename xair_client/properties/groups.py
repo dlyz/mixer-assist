@@ -1,12 +1,12 @@
 from typing import Any, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
 
 class GroupMaskProperty(MixerProperty[str]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
         description: str | None = None,
@@ -21,7 +21,7 @@ class GroupMaskProperty(MixerProperty[str]):
     @override
     def decode(self, raw: Any, instance: MixerNode) -> str:
         mask = int(raw)
-        width = instance.mixer_model.num_dca
+        width = instance.mixer_model.num_groups
         max_mask = (1 << width) - 1
         if not 0 <= mask <= max_mask:
             raise ValueError(f"{self.name} raw value must be in range 0..{max_mask}, got {mask}")
@@ -30,13 +30,13 @@ class GroupMaskProperty(MixerProperty[str]):
 
     @override
     def encode(self, value: str, instance: MixerNode) -> int:
-        width = instance.mixer_model.num_dca
+        width = instance.mixer_model.num_groups
         value = self._normalize_validate(value, num_groups=width)
         return int(value[::-1], 2)
 
     @override
     def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
-        width = parent.mixer_model.num_dca
+        width = parent.mixer_model.num_groups
         return MixerPropDescriptor(
             type="str",
             constraints=f"{width}-digit binary string (0/1), first digit is the value for the first group.",

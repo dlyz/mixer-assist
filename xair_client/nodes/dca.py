@@ -12,7 +12,7 @@ class DcaConfig(StripConfig):
 
 
 class Dca(MixerNode):
-    description = "DCA group assignment and state."
+    description = "DCA group state."
 
     config = MixerNodeFactory("config", DcaConfig)
     mute = InvertedBoolProperty("on")
@@ -20,7 +20,7 @@ class Dca(MixerNode):
 
 
 class Dcas(MixerCollectionNode[Dca]):
-    description = "DCA groups."
+    description = "DCA groups control (without assignment). You can assign channel/bus to a group in it's own section."
 
     item_type = Dca
     item_num_width = 1
@@ -28,4 +28,4 @@ class Dcas(MixerCollectionNode[Dca]):
     @override
     def _pre_init(self):
         if self.item_count is None:
-            self.item_count = self.mixer_model.num_dca
+            self.item_count = self.mixer_model.num_groups

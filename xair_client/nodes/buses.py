@@ -22,8 +22,37 @@ from ..properties.primitive import (
 from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
 
 
+def get_bus_stereo_link_path(parent: MixerNode):
+    """Constructs stereo link path that must be like `/config/buslink/1-2`"""
+
+    assert isinstance(parent, BusConfig)
+    num_key = f"{Bus.__name__}_num"
+    num = parent.context.get(num_key)
+    if num is None:
+        raise RuntimeError(f"Bus stereo link property requires '{num_key}' to be in the node's context.")
+
+    if num % 2 == 1:
+        segment = f"{num}-{num + 1}"
+    else:
+        segment = f"{num - 1}-{num}"
+
+    return "/config/buslink/" + segment
+
+
 class BusConfig(StripConfig):
-    description = "Bus name and color."
+    description = "Bus strip name and color. Also bus stereo-link switch."
+
+    stereo_link = BoolProperty(
+        get_bus_stereo_link_path,
+        description=textwrap.dedent(
+            """
+            Links odd-numbered bus as left and even-numbered bus as right components of a stereo-pair.
+            This value is synchronized between the buses in the pair.
+            When link becomes active, Main LR pan automatically set to -1.0, 1.0 for respective buses, but could be changed afterwards;
+            when it becomes inactive, Main LR pan of involved buses must be corrected back manually if needed.
+            """
+        ),
+    )
 
 
 class BusDyn(StripDyn):
@@ -108,7 +137,7 @@ class BusMix(MixerNode):
     send_to_main = BoolProperty("lr")
 
 
-class BusGroup(StripGroups):
+class BusGroups(StripGroups):
     pass
 
 
@@ -126,7 +155,8 @@ class Bus(MixerNode):
     graphic_eq = MixerNodeFactory("geq", BusGraphicEQ)
     dyn = MixerNodeFactory("dyn", BusDyn)
     mix = MixerNodeFactory("mix", BusMix)
-    groups = MixerNodeFactory("grp", BusGroup)
+
+    groups = MixerNodeFactory("grp", BusGroups)
 
 
 class Buses(MixerCollectionNode[Bus]):
@@ -139,6 +169,10 @@ class Buses(MixerCollectionNode[Bus]):
     def _pre_init(self):
         if self.item_count is None:
             self.item_count = self.mixer_model.num_bus
+
+
+class MainLRConfig(StripConfig):
+    description = "Main LR strip name and color."
 
 
 class MainLRInsert(BusInsert):
@@ -155,7 +189,7 @@ class MainLRMix(MixerNode):
     description = textwrap.dedent(
         """
         Main LR output section.
-        To tune channel send mix to main lr see channel's mix section.
+        To tune channel send mix to Main LR see channel's mix section.
         """
     )
 
@@ -165,7 +199,7 @@ class MainLRMix(MixerNode):
 
 
 class MainLR(MixerNode):
-    config = MixerNodeFactory("config", BusConfig)
+    config = MixerNodeFactory("config", MainLRConfig)
     insert = MixerNodeFactory("insert", MainLRInsert)
     eq = MixerNodeFactory("eq", BusEq)
     graphic_eq = MixerNodeFactory("geq", BusGraphicEQ)

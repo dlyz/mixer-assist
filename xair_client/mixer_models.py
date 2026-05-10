@@ -7,7 +7,8 @@ class MixerModel:
     first_name: str
     num_sources: int
     num_headamp: int
-    num_dca: int
+    num_groups: int
+    """Num of dca groups, the same as num of mute groups."""
     num_channels: int
     num_bus: int
     num_fx: int
@@ -24,7 +25,7 @@ X32 = MixerModel(
     id="X32",
     first_name="Behringer",
     num_sources=32,
-    num_dca=8,
+    num_groups=8,
     num_channels=32,
     num_bus=16,
     num_fx=8,
@@ -37,7 +38,7 @@ MR18 = MixerModel(
     first_name="Midas",
     num_sources=18,
     num_headamp=16,
-    num_dca=4,
+    num_groups=4,
     num_channels=16,
     num_bus=6,
     num_fx=4,
@@ -50,7 +51,7 @@ MR12 = MixerModel(
     first_name="Midas",
     num_sources=12,
     num_headamp=12,
-    num_dca=4,
+    num_groups=4,
     num_channels=12,
     num_bus=2,
     num_fx=4,

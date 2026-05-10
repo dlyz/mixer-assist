@@ -140,5 +140,7 @@ class StripDyn(MixerNode):
 
 
 class StripGroups(MixerNode):
+    description = "DCA and mute groups assignment"
+
     dca = GroupMaskProperty("dca", description="DCA assignment bitmask.")
     mute = GroupMaskProperty("mute", description="Mute-group assignment bitmask.")

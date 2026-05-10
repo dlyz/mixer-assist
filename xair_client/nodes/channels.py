@@ -2,15 +2,9 @@ from enum import IntEnum
 import textwrap
 from typing import override
 
-from ..properties.codec_type import CodecTypeMixerProperty
-
-from ..properties.fader_pan import FaderProperty
+from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
 
 from .returns_common import ReturnStripEq, ReturnStripMix
-
-from ..properties.sidechain_filter import SidechainKeySource
-
-from ..properties.sources import AnalogSourceProperty, UsbSourceProperty
 from .strip_common import (
     SidechainFilterType,
     StripConfig,
@@ -19,6 +13,9 @@ from .strip_common import (
     StripInsert,
 )
 
+from ..properties.codec_type import CodecTypeMixerProperty
+from ..properties.sidechain_filter import SidechainKeySource
+from ..properties.sources import AnalogSourceProperty, UsbSourceProperty
 from ..properties.primitive import (
     BoolProperty,
     EnumIntProperty,
@@ -26,12 +23,37 @@ from ..properties.primitive import (
     LogFloatProperty,
 )
 
-from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
+
+def get_channel_stereo_link_path(parent: MixerNode):
+    """Constructs stereo link path that must be like `/config/chlink/1-2`"""
+
+    assert isinstance(parent, ChannelConfig)
+    num_key = f"{Channel.__name__}_num"
+    num = parent.context.get(num_key)
+    if num is None:
+        raise RuntimeError(f"Channel stereo link property requires '{num_key}' to be in the node's context.")
+
+    if num % 2 == 1:
+        segment = f"{num}-{num + 1}"
+    else:
+        segment = f"{num - 1}-{num}"
+
+    return "/config/chlink/" + segment
 
 
 class ChannelConfig(StripConfig):
-    description = (
-        "Channel name and color, as well as selected source for the channel (one of analog inputs or usb returns)."
+    description = "Channel name and color, as well as selected source for the channel (one of analog inputs or usb returns), and stereo-link switch."
+
+    stereo_link = BoolProperty(
+        get_channel_stereo_link_path,
+        description=textwrap.dedent(
+            """
+            Links odd-numbered channel as left and even-numbered channel as right components of a stereo-pair.
+            This value is synchronized between the channels in the pair.
+            When link becomes active, Main LR pan automatically set to -1.0, 1.0 for respective channels, but could be changed afterwards;
+            when it becomes inactive, Main LR pan of involved channels must be corrected back manually if needed.
+            """
+        ),
     )
 
     analog_source = AnalogSourceProperty(
@@ -111,7 +133,7 @@ class ChannelMix(ReturnStripMix):
     pass
 
 
-class ChannelGroup(StripGroups):
+class ChannelGroups(StripGroups):
     pass
 
 
@@ -125,13 +147,14 @@ class Channel(MixerNode):
     )
 
     config = MixerNodeFactory("config", ChannelConfig)
-    groups = MixerNodeFactory("grp", ChannelGroup)
     preamp = MixerNodeFactory("preamp", ChannelPreamp)
     gate = MixerNodeFactory("gate", ChannelGate)
     insert = MixerNodeFactory("insert", ChannelInsert)
     eq = MixerNodeFactory("eq", ChannelEq)
     dyn = MixerNodeFactory("dyn", ChannelDyn)
     mix = MixerNodeFactory("mix", ChannelMix)
+
+    groups = MixerNodeFactory("grp", ChannelGroups)
 
 
 class Channels(MixerCollectionNode[Channel]):

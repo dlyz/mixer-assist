@@ -1,12 +1,14 @@
 from typing import override
 
+from ..nodes_base import MixerPropertyPathLike
+
 from .primitive import FloatProperty, LinearFloatProperty
 
 
 class FaderProperty(FloatProperty):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
         minimum: float = -90.0,
@@ -53,7 +55,7 @@ class FaderProperty(FloatProperty):
 class PanProperty(LinearFloatProperty):
     def __init__(
         self,
-        path_segment: str = "pan",
+        path_segment: MixerPropertyPathLike = "pan",
         *,
         writable: bool = True,
         description: str | None = None,

@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import dataclasses
-from typing import AbstractSet, Any, Callable, Generic, Iterable, TypeVar, overload, override
+from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar, overload, override
+
+from frozendict import frozendict
 
 from .mixer_models import MixerModel
 
@@ -21,6 +23,9 @@ class MixerPropDescriptor(MixerNodeDescriptor):
 
 class MixerNode:
     description: str | None = None
+
+    # todo: should allow no inconsistencies,
+    # probably moved to the context, because it propagates to the children
     disabled: bool = False
     disabled_children_names: frozenset[str] = frozenset()
 
@@ -28,12 +33,16 @@ class MixerNode:
         self,
         client: XAirClient,
         base_path: str,
+        context: frozendict = frozendict(),
         *,
         description: str | None = None,
         description_suffix: str | None = None,
     ):
         self._client = client
+        if base_path.endswith("/"):
+            base_path = base_path[:-1]
         self.base_path = base_path
+        self.context = context
         if description is not None:
             self.description = description
         if description_suffix is not None:
@@ -47,10 +56,10 @@ class MixerNode:
         return self._client.mixer_model
 
     def relative_path(self, segment: str) -> str:
+        if not segment:
+            return self.base_path
         if segment.startswith("/"):
             return segment
-        if self.base_path.endswith("/"):
-            return f"{self.base_path}{segment}"
         return f"{self.base_path}/{segment}"
 
     @property
@@ -89,11 +98,12 @@ class MixerCollectionNode(MixerNode, Generic[N]):
         self,
         client: XAirClient,
         base_path: str,
+        context: frozendict = frozendict(),
         *,
         item_count: int | None = None,
         **kwargs,
     ):
-        super().__init__(client, base_path, **kwargs)
+        super().__init__(client, base_path, context, **kwargs)
 
         self.item_count = item_count
         self._pre_init()
@@ -104,11 +114,11 @@ class MixerCollectionNode(MixerNode, Generic[N]):
         self._names = [self._create_item_name(num) for num in num_range]
 
         item_path_start = self.item_path_start if self.item_path_start is not None else self.item_start
-        self._path_segments = [
+        path_segments = [
             f"{num:0{self.item_num_width}d}" for num in range(item_path_start, item_path_start + self.item_count)
         ]
 
-        self._items = [self._create_item(num=num, path_segment=ps) for num, ps in zip(num_range, self._path_segments)]
+        self._items = [self._create_item(num=num, path_segment=ps) for num, ps in zip(num_range, path_segments)]
 
     def _pre_init(self):
         pass
@@ -116,25 +126,42 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     def _create_item_name(self, num: int):
         return f"{num:0{self.item_num_width}d}"
 
+    def _create_item_context(self, item_type: type[N], num: int):
+        return self.context.set(f"{item_type.__name__}_num", num)
+
+    def _create_item_context_factory(self, item_type: type[N], num: int) -> Callable[[MixerNode], frozendict]:
+        return lambda _: self._create_item_context(item_type, num)
+
+    def _create_typed_item(self, item_type: type[N], num: int, path_segment: str):
+        return MixerNodeFactory(
+            self.relative_path(path_segment),
+            item_type,
+            context_factory=self._create_item_context_factory(item_type, num),
+        ).create_node(self)
+
     def _create_item(self, num: int, path_segment: str):
         if self.item_type is None:
-            raise NotImplementedError("Specify item_type or implement custom _create_item.")
-        return MixerNodeFactory(self.relative_path(path_segment), self.item_type).create_node(self)
+            raise NotImplementedError(f"Specify item_type or implement custom {self._create_item.__name__}")
 
-    def __getitem__(self, index: int) -> N:
-        first = self.item_start
-        last = first + len(self._items) - 1
-        if index < self.item_start or index > last:
-            raise IndexError(f"index must be in range {self.item_start}..{last}")
+        return self._create_typed_item(self.item_type, num=num, path_segment=path_segment)
 
-        return self._items[index - self.item_start]
+    def __getitem__(self, num_or_name: int | str) -> N:
+        if isinstance(num_or_name, int):
+            num = num_or_name
+            first = self.item_start
+            last = first + len(self._items) - 1
+            if num < self.item_start or num > last:
+                raise IndexError(f"item num must be in range {self.item_start}..{last}")
 
-    def __len__(self) -> int:
+            return self._items[num - self.item_start]
+        else:
+            item_idx = self._names.index(num_or_name)
+            return self._items[item_idx]
+
+    def __iter__(self):
         assert self.item_count is not None
-        return self.item_count
-
-    def __contains__(self, item: N):
-        return item in self._items
+        num_range = range(self.item_start, self.item_start + self.item_count)
+        return zip(num_range, self._items)
 
     @property
     @override
@@ -174,9 +201,20 @@ class MixerPropertyBase(ABC, Generic[T]):
         raise NotImplementedError
 
 
+class MixerPropertyPathProvider(Protocol):
+    def __call__(self, parent: MixerNode, /) -> str: ...
+
+
+type MixerPropertyPathLike = str | MixerPropertyPathProvider
+
+
 class MixerProperty(MixerPropertyBase[T], Generic[T]):
-    def __init__(self, path_segment: str, *, writable: bool = True):
-        self.path_segment = path_segment
+    def __init__(self, path_segment: MixerPropertyPathLike, *, writable: bool = True):
+        if isinstance(path_segment, str):
+            self.path_provider: MixerPropertyPathProvider = lambda parent: parent.relative_path(path_segment)
+        else:
+            self.path_provider = path_segment
+
         self.writable = writable
         self.name = path_segment
 
@@ -192,7 +230,7 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
     def __get__(self, instance: MixerNode | None, owner: type[MixerNode]) -> "MixerProperty[T] | T":
         if instance is None:
             return self
-        path = instance.relative_path(self.path_segment)
+        path = self.path_provider(instance)
         if self.name in instance.disabled_children_names:
             raise RuntimeError(
                 f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{path}')."
@@ -201,7 +239,7 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
         return self.decode(raw, instance)
 
     def __set__(self, instance: MixerNode, value: T):
-        path = instance.relative_path(self.path_segment)
+        path = self.path_provider(instance)
         if not self.writable:
             raise AttributeError(f"Property '{self.name}' is read-only (internal path: '{path}').")
         if self.name in instance.disabled_children_names:
@@ -251,6 +289,7 @@ class MixerNodeFactory(Generic[N]):
         path_segment: str,
         node_type: type[N] | None,
         *,
+        context_factory: Callable[[MixerNode], frozendict] | None = None,
         description: str | None = None,
         description_suffix: str | None = None,
         kwargs: dict[str, Any] | None = None,
@@ -258,6 +297,7 @@ class MixerNodeFactory(Generic[N]):
     ):
         self.path_segment = path_segment
         self.node_type = node_type
+        self.context_factory = context_factory
         self.description = description
         self.description_suffix = description_suffix
         self.kwargs = kwargs or {}
@@ -287,8 +327,15 @@ class MixerNodeFactory(Generic[N]):
             raise NotImplementedError("Pass node_type to __init__ or override _get_node_type or create_node")
         return self.node_type
 
+    def _get_node_context(self, parent: MixerNode):
+        if self.context_factory is not None:
+            return self.context_factory(parent)
+        else:
+            return parent.context
+
     def create_node(self, parent: MixerNode) -> N:
         node_type = self._get_node_type(parent)
+        context = self._get_node_context(parent)
 
         child_kwargs = {
             "description": self.description,
@@ -297,4 +344,9 @@ class MixerNodeFactory(Generic[N]):
         }
         if self.kwargs_factory is not None:
             child_kwargs.update(self.kwargs_factory(parent))
-        return node_type(parent._client, parent.relative_path(self.path_segment), **child_kwargs)
+        return node_type(
+            client=parent._client,
+            base_path=parent.relative_path(self.path_segment),
+            context=context,
+            **child_kwargs,
+        )

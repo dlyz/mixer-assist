@@ -49,7 +49,7 @@ class HeadAmps(MixerCollectionNode[HeadAmp | LineHeadAmp]):
                 disable = num % 2 == 0
         else:
             item_type = HeadAmp
-        result = MixerNodeFactory(self.relative_path(path_segment), item_type).create_node(self)
+        result = super()._create_typed_item(item_type, num=num, path_segment=path_segment)
         if disable:
             result.disabled = True
         return result

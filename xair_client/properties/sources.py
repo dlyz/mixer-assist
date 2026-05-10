@@ -1,12 +1,12 @@
 from typing import Any, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
 
 class AnalogSourceProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
         description: str | None = None,
@@ -50,7 +50,7 @@ class AnalogSourceProperty(MixerProperty[int]):
 class UsbSourceProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
         description: str | None = None,
@@ -90,7 +90,7 @@ class UsbSourceProperty(MixerProperty[int]):
 class StereoUsbSourceProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
         description: str | None = None,

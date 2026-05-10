@@ -47,7 +47,8 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 - Tested only on Midas MR-18 FW 1.25
 - Not all available parameters and operations are implemented yet.
-  See [OSC commands](https://behringer.world/wiki/doku.php?id=x-air_osc), not implemented: Action, Preferences, Snapshots, Status, Configuration.
+  See [OSC commands](https://behringer.world/wiki/doku.php?id=x-air_osc), not implemented: Action, Preferences, Snapshots, Status, Routing.
+  Also not implemented: automix, solo control.
 - Some descriptions may be inaccurate or inadequately precise for LLMs.
 - At this stage, API is a subject to change.
 
@@ -55,3 +56,9 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 - [xair-api-python](https://github.com/onyx-and-iris/xair-api-python) for implementations insights.
 - [magical-mixers](https://github.com/matiasbarrios/magical-mixers) for effect parameters specification (though they have been corrected a little, see fx_types/types).
+
+## TODO
+
+- Test the problem with all fx types changes (returns incorrect types after the change, but next read is ok).
+- Figure out how stereo/dual fx inserts work for one insert, for two inserts, for one stereo insert, for mono/stereo send/return. Update descriptions accordingly.
+- 'Path' term is used for internal OSC commands as well as for external api. That leads to confusion in the code and in some error messages that will mention internal paths.

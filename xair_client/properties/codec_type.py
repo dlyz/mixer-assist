@@ -1,7 +1,7 @@
 import abc
 from typing import Any, Self, TypeVar, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
 C = TypeVar("C", bound="CodecType")
 
@@ -30,7 +30,7 @@ class CodecType(abc.ABC):
 class CodecTypeMixerProperty(MixerProperty[C]):
     def __init__(
         self,
-        path_segment: str,
+        path_segment: MixerPropertyPathLike,
         codec_type: type[C],
         *,
         writable: bool = True,
