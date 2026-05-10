@@ -158,6 +158,9 @@ class MixerCollectionNode(MixerNode, Generic[N]):
             item_idx = self._names.index(num_or_name)
             return self._items[item_idx]
 
+    def __contains__(self, item: N):
+        return item in self._items
+
     def __iter__(self):
         assert self.item_count is not None
         num_range = range(self.item_start, self.item_start + self.item_count)
