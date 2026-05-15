@@ -117,7 +117,7 @@ class StereoUsbSourceProperty(MixerProperty[int]):
         if not 1 <= value <= n:
             raise ValueError(f"stereo usb source must be in range 1..{n}, got {value}")
         if value % 2 == 0:
-            raise ValueError(f"stereo usb source must be odd, got {value}")
+            raise ValueError(f"stereo usb source must be odd to indicate (x, x+1) stereo pair, got {value}")
         raw_value = (value - 1) // 2
         if raw_value >= pair_count:
             raise ValueError(

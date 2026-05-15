@@ -176,7 +176,7 @@ def main():
 
                 if command == "raw":
                     raw_path = command_args
-                    result = client.read(raw_path)
+                    result = client.read(raw_path.split()[0], raw_path.split()[1:])
                     print(f"raw {raw_path} = {result}")
                 else:
                     if command in {"ls", "ds"}:

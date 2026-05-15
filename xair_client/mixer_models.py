@@ -12,8 +12,6 @@ class MixerModel:
     num_channels: int
     num_bus: int
     num_fx: int
-    num_auxrtn: int = 0
-    num_matrix: int = 0
     line_inputs_fixed_stereo: bool = False
 
     @property
@@ -21,18 +19,6 @@ class MixerModel:
         return self.first_name + " " + self.id
 
 
-X32 = MixerModel(
-    id="X32",
-    first_name="Behringer",
-    num_sources=32,
-    num_groups=8,
-    num_channels=32,
-    num_bus=16,
-    num_fx=8,
-    num_auxrtn=8,
-    num_matrix=6,
-    num_headamp=127,
-)
 MR18 = MixerModel(
     id="MR18",
     first_name="Midas",
@@ -59,7 +45,6 @@ MR12 = MixerModel(
 XR12 = dataclasses.replace(MR12, id="XR12", first_name="Behringer")
 
 MODELS_BY_ID = {
-    X32.id: X32,
     MR18.id: MR18,
     XR18.id: XR18,
     XR16.id: XR16,

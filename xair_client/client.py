@@ -130,7 +130,7 @@ class XAirConnection(XAirClient):
         self._server.shutdown()
 
     @override
-    def read(self, path: str) -> Any:
+    def read(self, path: str, values: Any | list[Any] | None = None) -> Any:
         path = self._normalize_path(path)
         deadline = time.monotonic() + self.timeout
 
@@ -139,7 +139,7 @@ class XAirConnection(XAirClient):
                 self._expected_path = path
                 self._expected_payload = None
 
-            self._server.send_message(path, None)
+            self._server.send_message(path, values)
 
             with self._response_cv:
                 while self._expected_payload is None:

@@ -59,5 +59,12 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 ## TODO
 
+- Channel insert fx slots may conflict with each other. M Air checks for that. Maybe move insert props to the fx.
 - Figure out how stereo/dual fx inserts work for one insert, for two inserts, for one stereo insert, for mono/stereo send/return. Update descriptions accordingly.
 - 'Path' term is used for internal OSC commands as well as for external api. That leads to confusion in the code and in some error messages that will mention internal paths.
+
+## Useful resources
+
+- [X AIR Mixer Series Remote Control Protocol](https://cdn-media.empowertribe.com/d63bb4c3a61942dda28f5ea5953d735d/M%20AIR%20Remote%20Control%20Protocol.pdf) - vague, nothing specific.
+- [MR12/MR18 manual](https://www.bhphotovideo.com/lit_files/628199.pdf) with each effect description.
+- [UNOFFICIAL X32/M32 OSC REMOTE PROTOCOL](https://www.academia.edu/9709659/UNOFFICIAL_X32_OSC_REMOTE_PROTOCOL) - all parameters spec for fxes.
