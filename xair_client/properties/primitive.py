@@ -120,7 +120,28 @@ class EnumIntProperty(MixerProperty[E]):
             self.labels = None
             self.casefold_name_to_value = {member.name.casefold(): member for member in self.enum_type}
 
-        enum_names = ", ".join(self.format_value(member) for member in self.enum_type)
+        enum_member_docs = _get_enum_member_docs(self.enum_type)
+        enum_names_with_doc = [
+            (self.format_value(member), enum_member_docs.get(member.name)) for member in self.enum_type
+        ]
+
+        enum_names = ", ".join(name for name, _ in enum_names_with_doc)
+
+        enum_values_description = None
+        if any(doc for _, doc in enum_names_with_doc):
+            enum_values_description = "Values:\n" + "\n".join(
+                (f"  {name}: {'\n    '.join(doc.strip().splitlines())}" if doc else f"  {name}")
+                for name, doc in enum_names_with_doc
+            )
+
+        if not description and enum_type.__doc__:
+            description = enum_type.__doc__.strip()
+
+        if not description:
+            description = enum_values_description
+        elif enum_values_description:
+            description = description + "\n" + enum_values_description
+
         self.descriptor = MixerPropDescriptor(
             type="enum",
             constraints=f"one of: {enum_names}",
@@ -153,6 +174,34 @@ class EnumIntProperty(MixerProperty[E]):
     @override
     def encode(self, value: E, instance: MixerNode) -> int:
         return int(value)
+
+
+def _get_enum_member_docs(enum_cls: type):
+    import ast
+    import inspect
+    import textwrap
+    from typing import cast
+
+    docs: dict[str, str] = {}
+
+    source = inspect.getsource(enum_cls)
+    tree = ast.parse(textwrap.dedent(source))
+    class_def = cast(ast.ClassDef, tree.body[0])
+
+    for i, node in enumerate(class_def.body):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    member_name = target.id
+
+                    # is next one a string literal?
+                    if i + 1 < len(class_def.body):
+                        next_node = class_def.body[i + 1]
+                        if isinstance(next_node, ast.Expr) and isinstance(next_node.value, ast.Constant):
+                            if isinstance(next_node.value.value, str):
+                                docs[member_name] = inspect.cleandoc(next_node.value.value)
+
+    return docs
 
 
 class FloatProperty(MixerProperty[float]):

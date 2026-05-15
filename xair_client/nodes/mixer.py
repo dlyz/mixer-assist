@@ -9,6 +9,7 @@ from .dca import Dcas
 from .channels import Channels
 from .fx_sends import FxSends
 from .headamp import HeadAmps
+from .routing import Routing
 from .returns import AuxReturn, FxReturns
 from .fx import Fxes
 
@@ -60,7 +61,7 @@ class Mixer(MixerNode):
     fx = MixerNodeFactory("fx", Fxes)
     dcas = MixerNodeFactory("dca", Dcas)
     mute_groups = MixerNodeFactory("config/mute", MixerMuteGroups)
-
+    routing = MixerNodeFactory("routing", Routing)
     config = MixerNodeFactory("config", MixerConfig)
 
     def __init__(self, client: XAirClient):

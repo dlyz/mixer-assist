@@ -19,38 +19,38 @@ class ReturnStripEq(MixerNode):
 
 class ReturnStripBusSend(MixerNode):
     class ReturnStripBusSendTap(IntEnum):
-        # 0: Directly after the A/D converter and Digital Trim.
+        """The stage at which the signal from the channel is sent to the bus.
+        Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> main fader.
+        """
+
         INPUT = 0
+        """Directly after the A/D converter or Digital Trim (for USB input)."""
 
-        # 1: After the Input stage but before the EQ.
-        # Includes Polarity/Phase and High Pass Filter (HPF, low cut) and Gate.
         PRE_EQ = 1
+        """After the Input stage but before the EQ.
+        Includes Polarity/Phase, Low cut (High Pass Filter) and Gate."""
 
-        # 2: After the 4-band EQ but before the Dynamics (Compressor).
         POST_EQ = 2
+        """After the EQ but before the Dynamics (Compressor/Expander)."""
 
-        # 3: After EQ and Dynamics, but before the Main Channel Fader.
-        # Standard for Monitor/IEM mixes.
         PRE_FADER = 3
+        """After EQ and Dynamics, but before the Main Channel Fader.
+        Standard for Monitor/IEM mixes."""
 
-        # 4: After the Main Channel Fader.
-        # Send level changes proportionally with the main mix fader.
         POST_FADER = 4
+        """After the Main Channel Fader.
+        Send level changes proportionally with the main mix fader."""
 
-        # 5: Fixed unity gain (0dB) send.
-        # Disables 'level' fader; uses 'send_to_subgroup' as an On/Off toggle.
         SUB_GROUP = 5
+        """Fixed unity gain (0dB) send.
+        Disables 'level' fader; uses 'send_to_subgroup' as an On/Off toggle."""
 
     level = FaderProperty("level", description="Channel fader level for the bus. Ignored when tap is SUB_GROUP.")
     pan = PanProperty(
         "pan",
         description="Effective only when current bus and the next one are joined into a stereo-pair. The pan value set on the odd bus applies to the signal within that pair; pan can not be accessed from even buses.",
     )
-    tap = EnumIntProperty(
-        "tap",
-        ReturnStripBusSendTap,
-        description="The stage at which the signal from the channel is sent to the bus. Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> fader.",
-    )
+    tap = EnumIntProperty("tap", ReturnStripBusSendTap)
     send_to_subgroup = BoolProperty(
         "grpon",
         description="Effective only when tap is set to SUB_GROUP. When a bus is used as a subgroup, this flag determines whether this channel is routed into it.",
@@ -78,30 +78,30 @@ class ReturnStripBusMix(MixerCollectionNode[ReturnStripBusSend]):
 
 class ReturnStripFxSend(MixerNode):
     class ReturnStripFxSendTap(IntEnum):
-        # 0: Directly after the A/D converter and Digital Trim.
+        """The stage at which the signal from the channel is sent to the fx.
+        Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> main fader.
+        """
+
         INPUT = 0
+        """Directly after the A/D converter or Digital Trim (for USB input)."""
 
-        # 1: After the Input stage but before the EQ.
-        # Includes Polarity/Phase and High Pass Filter (HPF, low cut) and Gate.
         PRE_EQ = 1
+        """After the Input stage but before the EQ.
+        Includes Polarity/Phase, Low cut (High Pass Filter) and Gate."""
 
-        # 2: After the 4-band EQ but before the Dynamics (Compressor).
         POST_EQ = 2
+        """After the EQ but before the Dynamics (Compressor/Expander)."""
 
-        # 3: After EQ and Dynamics, but before the Main Channel Fader.
-        # Standard for Monitor/IEM mixes.
         PRE_FADER = 3
+        """After EQ and Dynamics, but before the Main Channel Fader.
+        Standard for Monitor/IEM mixes."""
 
-        # 4: After the Main Channel Fader.
-        # Send level changes proportionally with the main mix fader.
         POST_FADER = 4
+        """After the Main Channel Fader.
+        Send level changes proportionally with the main mix fader."""
 
     level = FaderProperty("level", description="Channel fader level for the fx.")
-    tap = EnumIntProperty(
-        "tap",
-        ReturnStripFxSendTap,
-        description="The stage at which the signal from the channel is sent to the fx. Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> fader.",
-    )
+    tap = EnumIntProperty("tap", ReturnStripFxSendTap)
     # it exists, but makes no sense without SUB_GROUP tap
     # send_to_subgroup = BoolValue(
     #     "grpon",
