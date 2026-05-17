@@ -38,7 +38,7 @@ class AnalogSourceProperty(MixerProperty[int]):
         return value - 1
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         n = parent.mixer_model.num_sources
         return MixerPropDescriptor(
             type="int",
@@ -78,7 +78,7 @@ class UsbSourceProperty(MixerProperty[int]):
         return value - 1
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         n = parent.mixer_model.num_sources
         return MixerPropDescriptor(
             type="int",
@@ -126,7 +126,7 @@ class StereoUsbSourceProperty(MixerProperty[int]):
         return raw_value
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         n = parent.mixer_model.num_sources
         pair_count = n // 2
         max_value = max(1, pair_count * 2 - 1)

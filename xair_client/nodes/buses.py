@@ -40,23 +40,19 @@ def get_bus_stereo_link_path(parent: MixerNode):
 
 
 class BusConfig(StripConfig):
-    description = "Bus strip name and color. Also bus stereo-link switch."
+    "Bus strip name and color. Also bus stereo-link switch."
 
-    stereo_link = BoolProperty(
-        get_bus_stereo_link_path,
-        description=textwrap.dedent(
-            """
-            Links odd-numbered bus as left and even-numbered bus as right components of a stereo-pair.
-            This value is synchronized between the buses in the pair.
-            When link becomes active, Main LR pan automatically set to -1.0, 1.0 for respective buses, but could be changed afterwards;
-            when it becomes inactive, Main LR pan of involved buses must be corrected back manually if needed.
-            """
-        ),
-    )
+    stereo_link = BoolProperty(get_bus_stereo_link_path)
+    """
+    Links odd-numbered bus as left and even-numbered bus as right components of a stereo-pair.
+    This value is synchronized between the buses in the pair.
+    When link becomes active, Main LR pan automatically set to -1.0, 1.0 for respective buses, but could be changed afterwards;
+    when it becomes inactive, Main LR pan of involved buses must be corrected back manually if needed.
+    """
 
 
 class BusDynamics(StripDynamics):
-    description = "Bus compressor/expander settings."
+    "Bus compressor/expander settings."
 
 
 class BusInsert(StripInsert):
@@ -74,11 +70,9 @@ class BusEq(MixerNode):
         TEQ = 2
 
     enabled = BoolProperty("on")
-    mode = EnumIntProperty(
-        "mode",
-        EqMode,
-        description="For PEQ: only bands in current section are used. For GEQ and TEQ: only bands the bus's graphic EQ section are used.",
-    )
+
+    mode = EnumIntProperty("mode", EqMode)
+    "For PEQ: only bands in current section are used. For GEQ and TEQ: only bands the bus's graphic EQ section are used."
 
     low = MixerNodeFactory("1", BusEqBand)
     low2 = MixerNodeFactory("2", BusEqBand)
@@ -89,7 +83,7 @@ class BusEq(MixerNode):
 
 
 class BusGraphicEQ(MixerNode):
-    description = "Effective only when equalizer (bus eq) mode is GEQ (Graphic EQ) or TEQ (TruEQ)."
+    "Effective only when equalizer (bus eq) mode is GEQ (Graphic EQ) or TEQ (TruEQ)."
 
     f_20 = LinearFloatProperty("20", -15.0, 15.0, decimals=1, units="dB")
     f_25 = LinearFloatProperty("25", -15.0, 15.0, decimals=1, units="dB")
@@ -125,12 +119,10 @@ class BusGraphicEQ(MixerNode):
 
 
 class BusMix(MixerNode):
-    description = textwrap.dedent(
-        """
-        Bus output section.
-        To tune channel send mix to individual buses see channel's mix section.
-        """
-    )
+    """
+    Bus output section.
+    To tune channel send mix to individual buses see channel's mix section.
+    """
 
     mute = InvertedBoolProperty("on")
     fader = FaderProperty("fader")
@@ -142,12 +134,10 @@ class BusGroups(StripGroups):
 
 
 class Bus(MixerNode):
-    description = textwrap.dedent(
-        """
-        Processing sequence in bus strip:
-        input -> insert -> eq/geq -> dynamics -> mix.
-        """
-    )
+    """
+    Processing sequence in bus strip:
+    input -> insert -> eq/geq -> dynamics -> mix.
+    """
 
     config = MixerNodeFactory("config", BusConfig)
     insert = MixerNodeFactory("insert", BusInsert)
@@ -160,7 +150,7 @@ class Bus(MixerNode):
 
 
 class Buses(MixerCollectionNode[Bus]):
-    description = """Output buses settings. Input per-channel bus settings (channel sends) are a part of mixer's channels mix section."""
+    """Output buses settings. Input per-channel bus settings (channel sends) are a part of mixer's channels mix section."""
 
     item_type = Bus
     item_num_width = 1
@@ -172,7 +162,7 @@ class Buses(MixerCollectionNode[Bus]):
 
 
 class MainLRConfig(StripConfig):
-    description = "Main LR strip name and color."
+    "Main LR strip name and color."
 
 
 class MainLRInsert(BusInsert):
@@ -186,12 +176,10 @@ class MainLRDynamics(StripDynamics):
 
 
 class MainLRMix(MixerNode):
-    description = textwrap.dedent(
-        """
-        Main LR output section.
-        To tune channel send mix to Main LR see channel's mix section.
-        """
-    )
+    """
+    Main LR output section.
+    To tune channel send mix to Main LR see channel's mix section.
+    """
 
     mute = InvertedBoolProperty("on")
     fader = FaderProperty("fader")

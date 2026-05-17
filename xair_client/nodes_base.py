@@ -4,6 +4,8 @@ from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar, overload
 
 from frozendict import frozendict
 
+from .attribure_docs import get_class_attribute_docs
+
 from .mixer_models import MixerModel
 
 from .client import XAirClient
@@ -23,11 +25,24 @@ class MixerPropDescriptor(MixerNodeDescriptor):
 
 class MixerNode:
     description: str | None = None
+    property_descriptions: frozendict[str, str] = frozendict()
 
-    # todo: should allow no inconsistencies,
+    # TODO: should allow no inconsistencies,
     # probably moved to the context, because it propagates to the children
     disabled: bool = False
     disabled_children_names: frozenset[str] = frozenset()
+
+    def __init_subclass__(cls) -> None:
+        super().__init_subclass__()
+        if cls.description is None:
+            if cls.__doc__:
+                class_doc = cls.__doc__.strip()
+                if class_doc:
+                    cls.description = class_doc
+
+        attr_docs = get_class_attribute_docs(cls)
+        attr_docs.update(cls.property_descriptions)
+        cls.property_descriptions = frozendict(attr_docs)
 
     def __init__(
         self,
@@ -45,6 +60,7 @@ class MixerNode:
         self.context = context
         if description is not None:
             self.description = description
+
         if description_suffix is not None:
             if self.description:
                 self.description = self.description + description_suffix
@@ -221,10 +237,23 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
             self.path_provider = path_segment
 
         self.writable = writable
-        self.name = path_segment
+        self.name = None
 
     def __set_name__(self, owner: type[MixerNode], name: str):
         self.name = name
+
+    @override
+    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        d = self._make_own_node_descriptor(parent)
+        if not d.description and self.name:
+            descr_from_parent = parent.property_descriptions.get(self.name)
+            if descr_from_parent:
+                d = dataclasses.replace(d, description=descr_from_parent)
+        return d
+
+    @abstractmethod
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        raise NotImplementedError
 
     @overload
     def __get__(self, instance: None, owner: type[MixerNode]) -> "MixerProperty[T]": ...

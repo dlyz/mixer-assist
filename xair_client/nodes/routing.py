@@ -166,7 +166,8 @@ class RoutingUsbOut(MixerNode):
 
 
 class RoutingAuxOuts(MixerCollectionNode[RoutingOut]):
-    description = "Aux out routing taps and sources."
+    "Aux out routing taps and sources."
+
     item_type = RoutingOut
     item_num_width = 2
 
@@ -177,7 +178,8 @@ class RoutingAuxOuts(MixerCollectionNode[RoutingOut]):
 
 
 class RoutingUltranetOuts(MixerCollectionNode[RoutingOut]):
-    description = "Ultranet out routing taps and sources."
+    "Ultranet out routing taps and sources."
+
     item_type = RoutingOut
     item_num_width = 2
 
@@ -188,7 +190,8 @@ class RoutingUltranetOuts(MixerCollectionNode[RoutingOut]):
 
 
 class RoutingUsbOuts(MixerCollectionNode[RoutingUsbOut]):
-    description = "USB out routing taps and sources."
+    "USB out routing taps and sources."
+
     item_type = RoutingUsbOut
     item_num_width = 2
 
@@ -203,7 +206,7 @@ class RoutingMainOut(MixerNode):
 
 
 class Routing(MixerNode):
-    description = "Routing taps and sources for following outs: aux, main, phones, usb, ultranet."
+    "Routing taps and sources for following outs: aux, main, phones, usb, ultranet."
 
     aux = MixerNodeFactory("aux", RoutingAuxOuts)
     main = MixerNodeFactory("main/01", RoutingMainOut, description="Main out routing source")

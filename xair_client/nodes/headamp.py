@@ -1,20 +1,19 @@
-from __future__ import annotations
 from typing import override
 
 from ..properties.primitive import BoolProperty, LinearFloatProperty
 
-from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
+from ..nodes_base import MixerCollectionNode, MixerNode
 
 
 class HeadAmp(MixerNode):
-    description = "Settings for the mixer input. Input is assigned to the channel in the channel's config section."
+    "Settings for the mixer input. Input is assigned to the channel in the channel's config section."
 
     gain = LinearFloatProperty("gain", -12.0, 60.0, decimals=1, units="dB")
     phantom = BoolProperty("phantom")
 
 
 class LineHeadAmp(MixerNode):
-    description = "Settings for the mixer line input. Input is assigned to the channel in the channel's config section."
+    "Settings for the mixer line input. Input is assigned to the channel in the channel's config section."
 
     gain = LinearFloatProperty("gain", -12.0, 20.0, decimals=1, units="dB")
 

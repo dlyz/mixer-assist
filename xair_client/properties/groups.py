@@ -35,7 +35,7 @@ class GroupMaskProperty(MixerProperty[str]):
         return int(value[::-1], 2)
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         width = parent.mixer_model.num_groups
         return MixerPropDescriptor(
             type="str",

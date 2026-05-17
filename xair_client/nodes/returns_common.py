@@ -45,20 +45,22 @@ class ReturnStripBusSend(MixerNode):
         """Fixed unity gain (0dB) send.
         Disables 'level' fader; uses 'send_to_subgroup' as an On/Off toggle."""
 
-    level = FaderProperty("level", description="Channel fader level for the bus. Ignored when tap is SUB_GROUP.")
-    pan = PanProperty(
-        "pan",
-        description="Effective only when current bus and the next one are joined into a stereo-pair. The pan value set on the odd bus applies to the signal within that pair; pan can not be accessed from even buses.",
-    )
+    level = FaderProperty("level")
+    "Channel fader level for the bus. Ignored when tap is SUB_GROUP."
+
+    pan = PanProperty("pan")
+    """Effective only when current bus and the next one are joined into a stereo-pair.
+    The pan value set on the odd bus applies to the signal within that pair; pan can not be accessed from even buses."""
+
     tap = EnumIntProperty("tap", ReturnStripBusSendTap)
-    send_to_subgroup = BoolProperty(
-        "grpon",
-        description="Effective only when tap is set to SUB_GROUP. When a bus is used as a subgroup, this flag determines whether this channel is routed into it.",
-    )
+
+    send_to_subgroup = BoolProperty("grpon")
+    """Effective only when tap is set to SUB_GROUP.
+    When a bus is used as a subgroup, this flag determines whether this channel is routed into it."""
 
 
 class ReturnStripBusMix(MixerCollectionNode[ReturnStripBusSend]):
-    description = "Mix settings for each individual bus."
+    "Mix settings for each individual bus."
 
     item_type = ReturnStripBusSend
 
@@ -100,17 +102,18 @@ class ReturnStripFxSend(MixerNode):
         """After the Main Channel Fader.
         Send level changes proportionally with the main mix fader."""
 
-    level = FaderProperty("level", description="Channel fader level for the fx.")
+    level = FaderProperty("level")
+    "Channel fader level for the fx."
+
     tap = EnumIntProperty("tap", ReturnStripFxSendTap)
+
     # it exists, but makes no sense without SUB_GROUP tap
-    # send_to_subgroup = BoolValue(
-    #     "grpon",
-    #     description="Effective only when tap is set to SUB_GROUP, when bus becomes a subgroup. Determines whether the channel is sent to the bus.",
-    # )
+    # send_to_subgroup = BoolValue("grpon")
+    # "Effective only when tap is set to SUB_GROUP, when bus becomes a subgroup. Determines whether the channel is sent to the bus."
 
 
 class ReturnStripFxMix(MixerCollectionNode[ReturnStripFxSend]):
-    description = "Mix settings for each individual fx bus."
+    "Mix settings for each individual fx bus."
 
     item_type = ReturnStripFxSend
 
@@ -122,7 +125,7 @@ class ReturnStripFxMix(MixerCollectionNode[ReturnStripFxSend]):
 
 
 class ReturnStripMix(MixerNode):
-    description = "Global channel mute, main (lr) mix and mixes for each bus and fx sends."
+    "Global channel mute, main (lr) mix and mixes for each bus and fx sends."
 
     mute = InvertedBoolProperty("on")
     main_fader = FaderProperty("fader")

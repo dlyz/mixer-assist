@@ -38,7 +38,7 @@ class StripColor(IntEnum):
 
 
 class StripConfig(MixerNode):
-    description = "Strip name and color."
+    """Strip name and color."""
 
     name = StringProperty("name", max_len=12)
     color = EnumIntProperty("color", StripColor)
@@ -65,9 +65,9 @@ class StereoInsertFxSlot(IntEnum):
 
 
 class StripInsert(MixerNode):
-    enabled = BoolProperty(
-        "on", description="For insert to take effect it is also required to activate insert mode on fx itself."
-    )
+    enabled = BoolProperty("on")
+    "For insert to take effect it is also required to activate insert mode on fx itself."
+
     fx_slot = EnumIntProperty("sel", InsertFxSlot)
 
 
@@ -140,7 +140,10 @@ class StripDynamics(MixerNode):
 
 
 class StripGroups(MixerNode):
-    description = "DCA and mute groups assignment"
+    "DCA and mute groups assignment"
 
-    dca = GroupMaskProperty("dca", description="DCA assignment bitmask.")
-    mute = GroupMaskProperty("mute", description="Mute-group assignment bitmask.")
+    dca = GroupMaskProperty("dca")
+    "DCA assignment bit sting."
+
+    mute = GroupMaskProperty("mute")
+    "Mute-group assignment bit string."

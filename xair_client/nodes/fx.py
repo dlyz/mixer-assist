@@ -28,12 +28,10 @@ class FxParamsNodeProvider(MixerNodeFactory[FxParamsNode]):
 
 
 class Fx(MixerNode):
-    description = "FX effect settings"
+    "FX effect settings"
 
-    insert_mode = BoolProperty(
-        "insert",
-        description="Is fx in an insert mode. Channels and buses to insert fx to are configured in insert sections of these channels and buses.",
-    )
+    insert_mode = BoolProperty("insert")
+    "Is fx in an insert mode. Channels and buses to insert fx to are configured in insert sections of these channels and buses."
 
     effect_type = EnumIntProperty("type", FxType)
 

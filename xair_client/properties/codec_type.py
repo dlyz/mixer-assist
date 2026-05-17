@@ -58,11 +58,18 @@ class CodecTypeMixerProperty(MixerProperty[C]):
         return value.encode(instance)
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
-        base_descriptor = self.codec_type.make_node_descriptor(parent, writable=self.writable)
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        type_descriptor = self.codec_type.make_node_descriptor(parent, writable=self.writable)
+
+        description = self.description
+        if not description and self.name:
+            description = parent.property_descriptions.get(self.name)
+        if not description:
+            description = type_descriptor.description
+
         return MixerPropDescriptor(
-            type=base_descriptor.type,
-            units=self.units if self.units is not None else base_descriptor.units,
-            constraints=self.constraints if self.constraints is not None else base_descriptor.constraints,
-            description=self.description if self.description is not None else base_descriptor.description,
+            type=type_descriptor.type,
+            units=self.units if self.units is not None else type_descriptor.units,
+            constraints=self.constraints if self.constraints is not None else type_descriptor.constraints,
+            description=description,
         )

@@ -1,4 +1,3 @@
-import textwrap
 from typing import override
 
 from ..properties.fader_pan import FaderProperty
@@ -13,12 +12,10 @@ class FxSendConfig(StripConfig):
 
 
 class FxSendMix(MixerNode):
-    description = textwrap.dedent(
-        """
-        FX send output section.
-        Input levels into each FX send are configured in channels and returns mix sections of the mixer.
-        """
-    )
+    """
+    FX send output section.
+    Input levels into each FX send are configured in channels and returns mix sections of the mixer.
+    """
 
     mute = InvertedBoolProperty("on")
     fader = FaderProperty("fader")
@@ -29,7 +26,7 @@ class FxSendGroup(StripGroups):
 
 
 class FxSend(MixerNode):
-    description = "FX send strip with output-level controls."
+    "FX send strip with output-level controls."
 
     config = MixerNodeFactory("config", FxSendConfig)
     mix = MixerNodeFactory("mix", FxSendMix)
@@ -37,7 +34,7 @@ class FxSend(MixerNode):
 
 
 class FxSends(MixerCollectionNode[FxSend]):
-    description = """Output fx-sends settings. Input per-channel fx-sends settings (channel sends) are a part of mixer's channels mix section."""
+    """Output fx-sends settings. Input per-channel fx-sends settings (channel sends) are a part of mixer's channels mix section."""
 
     item_type = FxSend
     item_num_width = 1

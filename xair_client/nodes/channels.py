@@ -1,5 +1,4 @@
 from enum import IntEnum
-import textwrap
 from typing import override
 
 from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
@@ -42,52 +41,39 @@ def get_channel_stereo_link_path(parent: MixerNode):
 
 
 class ChannelConfig(StripConfig):
-    description = "Channel name and color, as well as selected source for the channel (one of analog inputs or usb returns), and stereo-link switch."
+    """Channel name and color, as well as selected source for the channel (one of analog inputs or usb returns), and stereo-link switch."""
 
-    stereo_link = BoolProperty(
-        get_channel_stereo_link_path,
-        description=textwrap.dedent(
-            """
-            Links odd-numbered channel as left and even-numbered channel as right components of a stereo-pair.
-            This value is synchronized between the channels in the pair.
-            When link becomes active, Main LR pan automatically set to -1.0, 1.0 for respective channels, but could be changed afterwards;
-            when it becomes inactive, Main LR pan of involved channels must be corrected back manually if needed.
-            """
-        ),
-    )
+    stereo_link = BoolProperty(get_channel_stereo_link_path)
+    """
+    Links odd-numbered channel as left and even-numbered channel as right components of a stereo-pair.
+    This value is synchronized between the channels in the pair.
+    When link becomes active, Main LR pan automatically set to -1.0, 1.0 for respective channels, but could be changed afterwards;
+    when it becomes inactive, Main LR pan of involved channels must be corrected back manually if needed.
+    """
 
-    analog_source = AnalogSourceProperty(
-        "insrc",
-        description="Id of analog source (input). To be effective requires use_usb_input to be false in channel's preamp. Gain is in mixer's headamp section.",
-    )
-    usb_source = UsbSourceProperty(
-        "rtnsrc",
-        description="Id of usb source. To be effective requires use_usb_input to be true in channel's preamp, and the gain (trim) for usb source is there too.",
-    )
+    analog_source = AnalogSourceProperty("insrc")
+    "Id of analog source (input). To be effective requires use_usb_input to be false in channel's preamp. Gain is in mixer's headamp section."
+
+    usb_source = UsbSourceProperty("rtnsrc")
+    "Id of usb source. To be effective requires use_usb_input to be true in channel's preamp, and the gain (trim) for usb source is there too."
 
 
 class ChannelPreamp(MixerNode):
-    description = textwrap.dedent(
-        """
-        Analog/Usb source switch, usb trim level, low cut and input phase inverter settings.
-        The analog source (input) gain is available in mixer's headamps section.
-        """
-    )
+    """
+    Analog/Usb source switch, usb trim level, low cut and input phase inverter settings.
+    The analog source (input) gain is available in mixer's headamps section.
+    """
 
-    use_usb_input = BoolProperty(
-        "rtnsw",
-        description="True if the channel will receive signal from usb return, false - if from analog input. The exact input is set in channel's config section.",
-    )
-    usb_trim = LinearFloatProperty(
-        "rtntrim",
-        -18.0,
-        18.0,
-        decimals=1,
-        units="dB",
-        description="Usable only if use_usb_input is true.",
-    )
+    use_usb_input = BoolProperty("rtnsw")
+    "True if the channel will receive signal from usb return, false - if from analog input. The exact input is set in channel's config section."
+
+    usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, units="dB")
+    "Usable only if use_usb_input is true."
+
     invert_phase = BoolProperty("invert")
+
     low_cut_on = BoolProperty("hpon")
+
     low_cut_freq = LogFloatProperty("hpf", 20.0, 400.0, decimals=1, units="Hz")
 
 
@@ -118,11 +104,11 @@ class ChannelGate(MixerNode):
 
 
 class ChannelEq(ReturnStripEq):
-    description = "Eq for the channel. Low cut (aka HPF) is separate and could be found in channel's preamp section."
+    "Eq for the channel. Low cut (aka HPF) is separate and could be found in channel's preamp section."
 
 
 class ChannelDynamics(StripDynamics):
-    description = "Compressor/expander settings."
+    "Compressor/expander settings."
 
 
 class ChannelInsert(StripInsert):
@@ -138,13 +124,11 @@ class ChannelGroups(StripGroups):
 
 
 class Channel(MixerNode):
-    description = textwrap.dedent(
-        """
-        Mixer channel that receives input, processes the signal and sends it to main lr mix and buses.
-        Processing sequence in channel strip:
-        preamp + low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> mix.
-        """
-    )
+    """
+    Mixer channel that receives input, processes the signal and sends it to main lr mix and buses.
+    Processing sequence in channel strip:
+    preamp + low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> mix.
+    """
 
     config = MixerNodeFactory("config", ChannelConfig)
     preamp = MixerNodeFactory("preamp", ChannelPreamp)
@@ -158,12 +142,11 @@ class Channel(MixerNode):
 
 
 class Channels(MixerCollectionNode[Channel]):
-    description = textwrap.dedent(
-        """
-        Mixer channel settings.
-        Each channel contains its own send levels and tap settings for every bus and FX send — this is the canonical place to configure the full monitor and effects mix, not the bus or FX send strips themselves.
-        """
-    )
+    """
+    Mixer channel settings.
+    Each channel contains its own send levels and tap settings for every bus and FX send — this is the canonical place to configure the full monitor and effects mix, not the bus or FX send strips themselves.
+    """
+
     item_type = Channel
 
     @override

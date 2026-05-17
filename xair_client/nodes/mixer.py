@@ -21,9 +21,8 @@ class MixerMuteGroup(MixerNode):
 
 
 class MixerMuteGroups(MixerCollectionNode[MixerMuteGroup]):
-    description = (
-        "Mute groups on/off control (without assignment). You can assign channel/bus to a group in it's own section."
-    )
+    "Mute groups on/off control (without assignment). You can assign channel/bus to a group in it's own section."
+
     item_type = MixerMuteGroup
     item_num_width = 1
 
@@ -34,19 +33,21 @@ class MixerMuteGroups(MixerCollectionNode[MixerMuteGroup]):
 
 
 class MixerStereoLinkConfig(MixerNode):
-    description = "Global stereo link config (what props are linked between stereo-linked channels)"
+    "Global stereo link config (what props are linked between stereo-linked channels)"
 
     preamp = BoolProperty("preamp")
+
     eq = BoolProperty("eq")
-    dynamics = BoolProperty("dyn", description="Compressor/expander")
-    main_lr_mix = BoolProperty(
-        "fdrmute",
-        description="Fader, mute for Main LR. Mix settings for other buses are always linked. Pan is always independent.",
-    )
+
+    dynamics = BoolProperty("dyn")
+    "Compressor/expander"
+
+    main_lr_mix = BoolProperty("fdrmute")
+    "Fader, mute for Main LR. Mix settings for other buses are always linked. Pan is always independent."
 
 
 class MixerConfig(MixerNode):
-    description = "Stereo link config"
+    "Stereo link config"
 
     stereo_link = MixerNodeFactory("linkcfg", MixerStereoLinkConfig)
 

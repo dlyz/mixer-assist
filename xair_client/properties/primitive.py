@@ -2,6 +2,8 @@ import abc
 import math
 from enum import IntEnum
 from typing import Any, TypeVar, override
+
+from ..attribure_docs import get_class_attribute_docs
 from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
 
@@ -30,7 +32,7 @@ class IntProperty(MixerProperty[int]):
         )
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         return self.descriptor
 
     @override
@@ -76,7 +78,7 @@ class StringProperty(MixerProperty[str]):
         )
 
     @override
-    def make_node_descriptor(self, parent: MixerNode):
+    def _make_own_node_descriptor(self, parent: MixerNode):
         return self.descriptor
 
     def _validate_value(self, value: str):
@@ -115,7 +117,7 @@ class BoolProperty(MixerProperty[bool]):
         )
 
     @override
-    def make_node_descriptor(self, parent: MixerNode):
+    def _make_own_node_descriptor(self, parent: MixerNode):
         return self.descriptor
 
     @override
@@ -170,7 +172,7 @@ class EnumIntProperty(MixerProperty[E]):
             self.labels = None
             self.casefold_name_to_value = {member.name.casefold(): member for member in self.enum_type}
 
-        enum_member_docs = _get_enum_member_docs(self.enum_type)
+        enum_member_docs = get_class_attribute_docs(self.enum_type)
         enum_names_with_doc = [
             (self.format_value(member), enum_member_docs.get(member.name)) for member in self.enum_type
         ]
@@ -199,7 +201,7 @@ class EnumIntProperty(MixerProperty[E]):
         )
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         return self.descriptor
 
     @override
@@ -224,34 +226,6 @@ class EnumIntProperty(MixerProperty[E]):
     @override
     def encode(self, value: E, instance: MixerNode) -> int:
         return int(value)
-
-
-def _get_enum_member_docs(enum_cls: type):
-    import ast
-    import inspect
-    import textwrap
-    from typing import cast
-
-    docs: dict[str, str] = {}
-
-    source = inspect.getsource(enum_cls)
-    tree = ast.parse(textwrap.dedent(source))
-    class_def = cast(ast.ClassDef, tree.body[0])
-
-    for i, node in enumerate(class_def.body):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name):
-                    member_name = target.id
-
-                    # is next one a string literal?
-                    if i + 1 < len(class_def.body):
-                        next_node = class_def.body[i + 1]
-                        if isinstance(next_node, ast.Expr) and isinstance(next_node.value, ast.Constant):
-                            if isinstance(next_node.value.value, str):
-                                docs[member_name] = inspect.cleandoc(next_node.value.value)
-
-    return docs
 
 
 class FloatProperty(MixerProperty[float]):
@@ -281,7 +255,7 @@ class FloatProperty(MixerProperty[float]):
         )
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         return self.descriptor
 
     @override

@@ -35,5 +35,5 @@ class DynRatioProperty(MixerProperty[float]):
         raise ValueError(f"ratio must be one of {self._ratios}, got {numeric_value}")
 
     @override
-    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         return self.descriptor
