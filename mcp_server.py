@@ -1,11 +1,15 @@
 import argparse
 import atexit
 import logging
+import textwrap
+from typing import Annotated, Literal
 from fastmcp import FastMCP
 from pydantic import BaseModel, ConfigDict, Field
 
 from xair_client.client import XAirConnection
 from xair_client.nodes.mixer import Mixer
+from xair_client.nodes.snapshots import Snapshots, SNAPSHOT_SLOTS_COUNT
+from xair_client.nodes_base import MixerNode
 from xair_client.text_tree_service import MixerTextTreeService
 
 logger = logging.getLogger(__name__)
@@ -17,37 +21,77 @@ def main():
     parser.add_argument("--ip", required=True, help="Mixer IP address.")
     parser.add_argument("--port", type=int, default=10024, help="Mixer OSC port.")
     parser.add_argument("--timeout", type=float, default=1.0, help="Read timeout in seconds.")
+    parser.add_argument(
+        "--no-snapshot-actions",
+        action="store_true",
+        help="Exclude snapshot actions (load/save/delete) from the toolset.",
+    )
     args = parser.parse_args()
 
     client = XAirConnection(ip=args.ip, port=args.port, timeout=args.timeout).connect()
     atexit.register(client.close)
     logger.error("Mixer connected.")
-    service = MixerTextTreeService(Mixer(client))
-    mcp = build_server(service)
+
+    def should_exclude_child(parent: MixerNode, child: str):
+        # excluding snapshot actions: we have special mcp tool for them.
+        if isinstance(parent, Snapshots):
+            if child in {Snapshots.load.name, Snapshots.save.name, Snapshots.delete.name}:
+                return True
+        return False
+
+    service = MixerTextTreeService(Mixer(client), should_exclude_child=should_exclude_child)
+    mcp = build_server(service, no_snapshot_actions=args.no_snapshot_actions)
     mcp.run()
 
 
-DESCRIBE_NODE_TOOL_DESCRIPTION = """
+DESCRIPTION_FOOTER = """
+
+---
+
+Always load all tools of x-air-mixer MCP, it's tools complete each other: describe-node, expand-node, set-parameters, run-snapshot-action (may be absent).
+"""
+
+DESCRIBE_NODE_TOOL_DESCRIPTION = (
+    """
 For a path in the mixer parameter tree, returns children nodes with their current values (for children that are leaves i.e. mixer parameters).
 Also returns type, units, constraints, and description (if available) for the path-selected node and it's children.
 
 Actual result for the root path (`/`) is:
 
-"""
+{root_description}
 
-EXPAND_NODE_TOOL_DESCRIPTION = """
+"""
+    + DESCRIPTION_FOOTER
+)
+
+EXPAND_NODE_TOOL_DESCRIPTION = (
+    """
 Batch version of the describe_node tool, that does not return descriptions etc, only children names and values.
 If the path is a parameter (tree leaf), it's value will be returned.
 Useful when you have already discovered available parameters with their types and constraints (using describe-node)
 and want to get mixer parameter values without excessive information.
 """
+    + DESCRIPTION_FOOTER
+)
 
-SET_PARAMETERS_TOOL_DESCRIPTION = """
+SET_PARAMETERS_TOOL_DESCRIPTION = (
+    """
 Sets provided values for selected parameters.
 Usually you don't have to read parameters manually afterwards: their actual values will be returned as a result of this tool call.
 Only try to read them if the write returned values that you haven't expected (sometimes there is a small lag).
 Be sure to consult parameters description (type and constraints) using describe-node before setting any values.
 """
+    + DESCRIPTION_FOOTER
+)
+
+RUN_SNAPSHOT_ACTION_TOOL_DESCRIPTION = (
+    """
+Runs one of the actions (load/save/delete) related to snapshots (see also `/snapshot` path).
+IMPORTANT: all operations could be quite destructive, use this actions only if user explicitly asked to use them.
+If you suspect user will benefit from these actions, ask him first explicitly.
+"""
+    + DESCRIPTION_FOOTER
+)
 
 
 class ParameterInput(BaseModel):
@@ -57,14 +101,14 @@ class ParameterInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-def build_server(service: MixerTextTreeService) -> FastMCP:
+def build_server(service: MixerTextTreeService, no_snapshot_actions: bool) -> FastMCP:
     mcp = FastMCP("x-air-mixer", "Gives access to the Behringer/Midas mixer.")
 
     root_description = service.expand_node("/", verbose=True)
 
     @mcp.tool(
         name="describe-node",
-        description=DESCRIBE_NODE_TOOL_DESCRIPTION + root_description,
+        description=DESCRIBE_NODE_TOOL_DESCRIPTION.format(root_description=root_description),
     )
     def describe_node(path: str = "/") -> str:
         path = _normalize_path(path)
@@ -121,6 +165,28 @@ def build_server(service: MixerTextTreeService) -> FastMCP:
                 return "\n".join(lines)
 
         return "\n".join(lines)
+
+    if not no_snapshot_actions:
+        action_description = textwrap.dedent(
+            """
+            `load` - load snapshot-defined scope from specified snapshot into mixer current state, the exact scope could be examined or changed in `/snapshots/slots/xx/recall_scope`.
+            `save` - save whole current state of the mixer to the specified slot, the name of the snapshot must be preliminarily set in `/snapshots/name_to_same`.
+            `delete` - deletes the snapshot from the specified slot along with it's name and recall scope.
+            """
+        ).strip()
+
+        @mcp.tool(
+            name="run-snapshot-action",
+            description=RUN_SNAPSHOT_ACTION_TOOL_DESCRIPTION,
+        )
+        def run_snapshot_action(
+            action: Annotated[Literal["load", "save", "delete"], Field(description=action_description)],
+            slot: Annotated[
+                int, Field(ge=1, le=SNAPSHOT_SLOTS_COUNT, description="Snapshot slot number to perform action to.")
+            ],
+        ) -> str:
+            setattr(service._mixer.snapshots, action, slot)
+            return f"Snapshot action '{action}' for slot {slot} successfully sent to the mixer."
 
     return mcp
 

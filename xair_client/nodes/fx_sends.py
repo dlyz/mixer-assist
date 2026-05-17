@@ -16,7 +16,7 @@ class FxSendMix(MixerNode):
     description = textwrap.dedent(
         """
         FX send output section.
-        Input levels into each FX send are configured in channels and returns mix sections.
+        Input levels into each FX send are configured in channels and returns mix sections of the mixer.
         """
     )
 

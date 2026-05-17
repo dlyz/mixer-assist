@@ -114,7 +114,7 @@ class DynEnvelope(IntEnum):
     LOG = 1
 
 
-class StripDyn(MixerNode):
+class StripDynamics(MixerNode):
     # Main.
     enabled = BoolProperty("on")
     mode = EnumIntProperty("mode", DynMode)

@@ -47,7 +47,7 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 - Tested only on Midas MR-18 FW 1.25
 - Not all available parameters and operations are implemented yet.
-  See [OSC commands](https://behringer.world/wiki/doku.php?id=x-air_osc), not implemented: Action, Preferences, Snapshots, Status, Routing.
+  See [OSC commands](https://behringer.world/wiki/doku.php?id=x-air_osc), not implemented: Action, Preferences, Status.
   Also not implemented: automix, solo control.
 - Some descriptions may be inaccurate or inadequately precise for LLMs.
 - At this stage, API is a subject to change.
@@ -59,6 +59,9 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 ## TODO
 
+- Make terminology more consistent and compliant with industry.
+  - Describe snapshot recall scope elements.
+- Support reading description from the fields docstrings.
 - Channel insert fx slots may conflict with each other. M Air checks for that. Maybe move insert props to the fx.
 - Figure out how stereo/dual fx inserts work for one insert, for two inserts, for one stereo insert, for mono/stereo send/return. Update descriptions accordingly.
 - 'Path' term is used for internal OSC commands as well as for external api. That leads to confusion in the code and in some error messages that will mention internal paths.

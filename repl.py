@@ -204,6 +204,8 @@ def main():
                     print(service.expand_node(target_path, verbose=False))
 
             except Exception as exc:
+                if isinstance(exc, AssertionError):
+                    raise
                 print(f"error: {exc}")
 
 

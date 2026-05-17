@@ -1,11 +1,14 @@
+from typing import Callable
+
 from .nodes_base import MixerCollectionNode, MixerNode, MixerPropertyNode
 
 from .nodes.mixer import Mixer
 
 
 class MixerTextTreeService:
-    def __init__(self, mixer: Mixer):
+    def __init__(self, mixer: Mixer, should_exclude_child: Callable[[MixerNode, str], bool] | None = None):
         self._mixer = mixer
+        self._should_exclude_child = should_exclude_child or (lambda parent, name: False)
 
     def resolve_node(self, path: str) -> MixerNode | MixerPropertyNode:
         segments = [segment for segment in path.split("/") if segment]
@@ -14,7 +17,7 @@ class MixerTextTreeService:
         for idx, segment in enumerate(segments):
             is_last = idx == len(segments) - 1
             child = next((child for name, child in current.children if name == segment), None)
-            if child is None:
+            if child is None or self._should_exclude_child(current, segment):
                 raise ValueError(f"path not found: '{'/' + '/'.join(segments[: idx + 1])}'")
             if is_last:
                 return child
@@ -34,6 +37,9 @@ class MixerTextTreeService:
 
         lines: list[str] = [f"{path}:" + "\n".join(_print_value(node, "", verbose=verbose))]
         for child_name, child in node.children:
+            if self._should_exclude_child(node, child_name):
+                continue
+
             # suppressing description for collection items because they all repeat the same.
             actual_verbose = verbose and (container is None or child not in container)
             lines.append(f"  - {child_name}" + "\n".join(_print_value(child, "    ", verbose=actual_verbose)))

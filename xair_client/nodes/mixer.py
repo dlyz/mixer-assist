@@ -1,5 +1,7 @@
 from typing import override
 
+from .snapshots import Snapshots
+
 from ..properties.primitive import BoolProperty
 
 from ..client import XAirClient
@@ -63,6 +65,7 @@ class Mixer(MixerNode):
     mute_groups = MixerNodeFactory("config/mute", MixerMuteGroups)
     routing = MixerNodeFactory("routing", Routing)
     config = MixerNodeFactory("config", MixerConfig)
+    snapshots = MixerNodeFactory("-snap", Snapshots)
 
     def __init__(self, client: XAirClient):
         super().__init__(client, "/", description=f"{client.mixer_model.name} mixer parameter tree.")

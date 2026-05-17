@@ -13,9 +13,8 @@
 
 ## Protocol
 
-Good hint about commands is [here](https://behringer.world/wiki/doku.php?id=x-air_osc), but may be not exactly accurate.
+Good list of commands is [here](https://behringer.world/wiki/doku.php?id=x-air_osc), but may be not exactly accurate. Use it when asked to add some not-yet-implemented commands.
 Also see xair_api (references/xair_api) as reference (<https://github.com/onyx-and-iris/xair-api-python>), but may be also not accurate or incomplete.
-Also there is magical-mixers (references/magical-mixers) library that has [definitions for all the effects](https://github.com/matiasbarrios/magical-mixers/tree/main/src/core/drivers/xair/device/fx/type).
 
 ## Philosophy
 
@@ -26,7 +25,7 @@ Also there is magical-mixers (references/magical-mixers) library that has [defin
 ## Architecture Principles
 
 - `xair_api`: only using for reference
-- `xair_client`: our new client
+- `xair_client`: our new client library
 - `xair_client/client.py`:
   - OSC transport, request/response correlation, model detection.
 - `xair_client/mixer_models.py`:
@@ -45,3 +44,35 @@ Also there is magical-mixers (references/magical-mixers) library that has [defin
 - Validate all writes before sending to mixer.
 - Model-dependent constraints should come from `XAirClient.model`.
 - Do not use unconstrained `IntValue` for protocol-coded fields (mode/slot/type/position/etc.); use `EnumIntValue` or another constrained value adapter with explicit semantics.
+
+## Coding style and python
+
+Apply these rules when writing or modifying Python code.
+
+### Tooling
+
+- Run Python via `uv`; do not invoke `python` directly.
+- Examples:
+  - `uv run python -m py_compile ...`
+  - `uv run python -m pytest ...`
+  - `uv run python -m <module>`
+
+### Typing Rules
+
+- Use modern unions: `A | B` and `T | None`.
+- Do not use `typing.Optional` or `typing.Union`.
+- Use concrete return/value types where practical.
+- Do not use `from __future__ import annotations`, current python version doesn't need it.
+- Use `@override` decorator for overridden class members
+
+### Code flow rules
+
+- Use if-else instead if-break and if-continue and if-return when `if` and `else` statements are kind of same level of logic. When it is a shortcut, return/break/continue is preferred instead of introducing nested branch for the "normal" case.
+
+### Descriptor Rules (Pyright/Pylance)
+
+- For descriptors, implement `@overload` for `__get__`:
+  - class access returns descriptor type
+  - instance access returns value type
+- Avoid explicit type annotations on descriptor-backed class attributes; let descriptor typing drive inference.
+- Prefer strongly typed descriptor subclasses for value semantics (bool/enum/custom mapped int).

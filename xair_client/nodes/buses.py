@@ -7,7 +7,7 @@ from ..properties.fader_pan import FaderProperty, PanProperty
 from .strip_common import (
     StereoInsertFxSlot,
     StripConfig,
-    StripDyn,
+    StripDynamics,
     StripEqBand,
     StripGroups,
     StripInsert,
@@ -55,7 +55,7 @@ class BusConfig(StripConfig):
     )
 
 
-class BusDyn(StripDyn):
+class BusDynamics(StripDynamics):
     description = "Bus compressor/expander settings."
 
 
@@ -153,7 +153,7 @@ class Bus(MixerNode):
     insert = MixerNodeFactory("insert", BusInsert)
     eq = MixerNodeFactory("eq", BusEq)
     graphic_eq = MixerNodeFactory("geq", BusGraphicEQ)
-    dyn = MixerNodeFactory("dyn", BusDyn)
+    dynamics = MixerNodeFactory("dyn", BusDynamics)
     mix = MixerNodeFactory("mix", BusMix)
 
     groups = MixerNodeFactory("grp", BusGroups)
@@ -179,10 +179,10 @@ class MainLRInsert(BusInsert):
     fx_slot = EnumIntProperty("sel", StereoInsertFxSlot)
 
 
-class MainLRDyn(StripDyn):
+class MainLRDynamics(StripDynamics):
     # this is not ideal hack: the property exist in the type, but disabled.
     # kept as is cause not sure it worth branching class hierarchy
-    disabled_children_names = StripDyn.disabled_children_names.union(["sidechain_key_source"])
+    disabled_children_names = StripDynamics.disabled_children_names.union(["sidechain_key_source"])
 
 
 class MainLRMix(MixerNode):
@@ -203,5 +203,5 @@ class MainLR(MixerNode):
     insert = MixerNodeFactory("insert", MainLRInsert)
     eq = MixerNodeFactory("eq", BusEq)
     graphic_eq = MixerNodeFactory("geq", BusGraphicEQ)
-    dyn = MixerNodeFactory("dyn", MainLRDyn)
+    dynamics = MixerNodeFactory("dyn", MainLRDynamics)
     mix = MixerNodeFactory("mix", MainLRMix)

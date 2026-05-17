@@ -3,8 +3,6 @@ from typing import Any, Self, TypeVar, override
 
 from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
-C = TypeVar("C", bound="CodecType")
-
 
 class CodecType(abc.ABC):
     @classmethod
@@ -25,6 +23,9 @@ class CodecType(abc.ABC):
     @abc.abstractmethod
     def make_node_descriptor(cls, parent: MixerNode, writable: bool) -> MixerPropDescriptor:
         raise NotImplementedError
+
+
+C = TypeVar("C", bound=CodecType)
 
 
 class CodecTypeMixerProperty(MixerProperty[C]):

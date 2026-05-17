@@ -64,13 +64,13 @@ class MixerNode:
 
     @property
     def children(self) -> Iterable[tuple[str, "MixerNode | MixerPropertyNode"]]:
-        all_items = {}
+        all_items: dict[str, Any] = {}
 
         for cls in reversed(self.__class__.__mro__):
             all_items.update(cls.__dict__)
 
         for attr_name, member in all_items.items():
-            if attr_name in self.disabled_children_names:
+            if attr_name in self.disabled_children_names or attr_name.startswith("_"):
                 continue
 
             if isinstance(member, MixerNodeFactory):
@@ -93,6 +93,7 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     item_start: int = 1
     item_path_start: int | None = None
     item_num_width: int = 2
+    item_count: int | None = None
 
     def __init__(
         self,
@@ -105,7 +106,8 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     ):
         super().__init__(client, base_path, context, **kwargs)
 
-        self.item_count = item_count
+        if item_count is not None:
+            self.item_count = item_count
         self._pre_init()
         if self.item_count is None:
             raise RuntimeError("item_count must be passed to the init or defined by deriving class")

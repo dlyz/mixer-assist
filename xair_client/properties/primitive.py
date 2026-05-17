@@ -5,8 +5,55 @@ from typing import Any, TypeVar, override
 from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
 
 
-T = TypeVar("T")
-E = TypeVar("E", bound=IntEnum)
+class IntProperty(MixerProperty[int]):
+    def __init__(
+        self,
+        path_segment: MixerPropertyPathLike,
+        minimum: int,
+        maximum: int,
+        *,
+        writable: bool = True,
+        units: str | None = None,
+        extra_constraints: str = "",
+        description: str | None = None,
+    ):
+        if minimum > maximum:
+            raise ValueError(f"minimum must be less or equal than maximum, got {minimum} > {maximum}")
+        super().__init__(path_segment, writable=writable)
+        self.minimum = minimum
+        self.maximum = maximum
+        self.descriptor = MixerPropDescriptor(
+            type="float",
+            units=units,
+            constraints=self.make_range_constraints(minimum, maximum) + extra_constraints,
+            description=description,
+        )
+
+    @override
+    def make_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        return self.descriptor
+
+    @override
+    def parse(self, value: str) -> int:
+        return int(value.strip())
+
+    @override
+    def format_value(self, value: int) -> str:
+        return str(value)
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> int:
+        return int(raw)
+
+    @override
+    def encode(self, value: int, instance: MixerNode) -> int:
+        if not self.minimum <= value <= self.maximum:
+            raise ValueError(f"{self.name} must be in range {self.minimum}..{self.maximum}, got {value}")
+        return value
+
+    @staticmethod
+    def make_range_constraints(minimum: int, maximum: int):
+        return f"in range [{minimum}, {maximum}]"
 
 
 class StringProperty(MixerProperty[str]):
@@ -97,6 +144,9 @@ class InvertedBoolProperty(BoolProperty):
     @override
     def encode(self, value: bool, instance: MixerNode) -> int:
         return 0 if value else 1
+
+
+E = TypeVar("E", bound=IntEnum)
 
 
 class EnumIntProperty(MixerProperty[E]):

@@ -8,7 +8,7 @@ from .returns_common import ReturnStripEq, ReturnStripMix
 from .strip_common import (
     SidechainFilterType,
     StripConfig,
-    StripDyn,
+    StripDynamics,
     StripGroups,
     StripInsert,
 )
@@ -121,7 +121,7 @@ class ChannelEq(ReturnStripEq):
     description = "Eq for the channel. Low cut (aka HPF) is separate and could be found in channel's preamp section."
 
 
-class ChannelDyn(StripDyn):
+class ChannelDynamics(StripDynamics):
     description = "Compressor/expander settings."
 
 
@@ -151,7 +151,7 @@ class Channel(MixerNode):
     gate = MixerNodeFactory("gate", ChannelGate)
     insert = MixerNodeFactory("insert", ChannelInsert)
     eq = MixerNodeFactory("eq", ChannelEq)
-    dyn = MixerNodeFactory("dyn", ChannelDyn)
+    dynamics = MixerNodeFactory("dyn", ChannelDynamics)
     mix = MixerNodeFactory("mix", ChannelMix)
 
     groups = MixerNodeFactory("grp", ChannelGroups)
