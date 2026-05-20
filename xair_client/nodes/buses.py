@@ -82,8 +82,8 @@ class BusEq(MixerNode):
 
 
 class GeqBandProperty(LinearFloatProperty):
-    def __init__(self, path_segment: str):
-        super().__init__(path_segment, -15.0, 15.0, decimals=1, grid_size=61, units="dB")
+    def __init__(self, address_segment: str):
+        super().__init__(address_segment, -15.0, 15.0, decimals=1, grid_size=61, units="dB")
 
 
 class BusGraphicEQ(MixerNode):

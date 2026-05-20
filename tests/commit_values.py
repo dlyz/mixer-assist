@@ -144,7 +144,9 @@ def main():
                         prop = node.prop
                         assert isinstance(prop, MixerProperty)
                         param = next(
-                            p for p in data["parameters"] if prop.path_provider(node.parent).endswith("/" + p["number"])
+                            p
+                            for p in data["parameters"]
+                            if prop.address_provider(node.parent).endswith("/" + p["number"])
                         )
                         param["grid_size"] = grid_size
 

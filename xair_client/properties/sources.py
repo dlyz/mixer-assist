@@ -1,17 +1,17 @@
 from typing import Any, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike
 
 
 class AnalogSourceProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         *,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self._description = description
 
     @override
@@ -50,12 +50,12 @@ class AnalogSourceProperty(MixerProperty[int]):
 class UsbSourceProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         *,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self._description = description
 
     @override
@@ -90,12 +90,12 @@ class UsbSourceProperty(MixerProperty[int]):
 class StereoUsbSourceProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         *,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self._description = description
 
     @override

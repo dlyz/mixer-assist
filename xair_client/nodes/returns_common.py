@@ -70,8 +70,8 @@ class ReturnStripBusMix(MixerCollectionNode[ReturnStripBusSend]):
             self.item_count = self.mixer_model.num_bus
 
     @override
-    def _create_item(self, num: int, path_segment: str):
-        result = super()._create_item(num=num, path_segment=path_segment)
+    def _create_item(self, num: int, address_segment: str):
+        result = super()._create_item(num=num, address_segment=address_segment)
         # pan exists only on odd buses (works when they are paired)
         if num % 2 == 0:
             result.disabled_children_names = result.disabled_children_names.union(["pan"])

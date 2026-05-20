@@ -10,11 +10,11 @@ class FxParamsNodeProvider(MixerNodeFactory[FxParamsNode]):
 
     def __init__(
         self,
-        path_segment: str,
+        address_segment: str,
         *,
         description_suffix: str | None = None,
     ):
-        super().__init__(path_segment, None, description_suffix=description_suffix)
+        super().__init__(address_segment, None, description_suffix=description_suffix)
 
     @override
     def _get_node_type(self, parent: MixerNode):

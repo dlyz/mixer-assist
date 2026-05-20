@@ -47,16 +47,16 @@ class MixerNode:
     def __init__(
         self,
         client: XAirClient,
-        base_path: str,
+        base_address: str,
         context: frozendict = frozendict(),
         *,
         description: str | None = None,
         description_suffix: str | None = None,
     ):
         self._client = client
-        if base_path.endswith("/"):
-            base_path = base_path[:-1]
-        self.base_path = base_path
+        if base_address.endswith("/"):
+            base_address = base_address[:-1]
+        self.base_address = base_address
         self.context = context
         if description is not None:
             self.description = description
@@ -71,12 +71,12 @@ class MixerNode:
     def mixer_model(self) -> MixerModel:
         return self._client.mixer_model
 
-    def relative_path(self, segment: str) -> str:
+    def relative_address(self, segment: str) -> str:
         if not segment:
-            return self.base_path
+            return self.base_address
         if segment.startswith("/"):
             return segment
-        return f"{self.base_path}/{segment}"
+        return f"{self.base_address}/{segment}"
 
     @property
     def children(self) -> Iterable[tuple[str, "MixerNode | MixerPropertyNode"]]:
@@ -114,13 +114,13 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     def __init__(
         self,
         client: XAirClient,
-        base_path: str,
+        base_address: str,
         context: frozendict = frozendict(),
         *,
         item_count: int | None = None,
         **kwargs,
     ):
-        super().__init__(client, base_path, context, **kwargs)
+        super().__init__(client, base_address, context, **kwargs)
 
         if item_count is not None:
             self.item_count = item_count
@@ -132,11 +132,11 @@ class MixerCollectionNode(MixerNode, Generic[N]):
         self._names = [self._create_item_name(num) for num in num_range]
 
         item_path_start = self.item_path_start if self.item_path_start is not None else self.item_start
-        path_segments = [
+        address_segments = [
             f"{num:0{self.item_num_width}d}" for num in range(item_path_start, item_path_start + self.item_count)
         ]
 
-        self._items = [self._create_item(num=num, path_segment=ps) for num, ps in zip(num_range, path_segments)]
+        self._items = [self._create_item(num=num, address_segment=ps) for num, ps in zip(num_range, address_segments)]
 
     def _pre_init(self):
         pass
@@ -150,18 +150,18 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     def _create_item_context_factory(self, item_type: type[N], num: int) -> Callable[[MixerNode], frozendict]:
         return lambda _: self._create_item_context(item_type, num)
 
-    def _create_typed_item(self, item_type: type[N], num: int, path_segment: str):
+    def _create_typed_item(self, item_type: type[N], num: int, address_segment: str):
         return MixerNodeFactory(
-            self.relative_path(path_segment),
+            self.relative_address(address_segment),
             item_type,
             context_factory=self._create_item_context_factory(item_type, num),
         ).create_node(self)
 
-    def _create_item(self, num: int, path_segment: str):
+    def _create_item(self, num: int, address_segment: str):
         if self.item_type is None:
             raise NotImplementedError(f"Specify item_type or implement custom {self._create_item.__name__}")
 
-        return self._create_typed_item(self.item_type, num=num, path_segment=path_segment)
+        return self._create_typed_item(self.item_type, num=num, address_segment=address_segment)
 
     def __getitem__(self, num_or_name: int | str) -> N:
         if isinstance(num_or_name, int):
@@ -222,19 +222,21 @@ class MixerPropertyBase(ABC, Generic[T]):
         raise NotImplementedError
 
 
-class MixerPropertyPathProvider(Protocol):
+class MixerPropertyAddressProvider(Protocol):
     def __call__(self, parent: MixerNode, /) -> str: ...
 
 
-type MixerPropertyPathLike = str | MixerPropertyPathProvider
+type MixerPropertyAddressLike = str | MixerPropertyAddressProvider
 
 
 class MixerProperty(MixerPropertyBase[T], Generic[T]):
-    def __init__(self, path_segment: MixerPropertyPathLike, *, writable: bool = True):
-        if isinstance(path_segment, str):
-            self.path_provider: MixerPropertyPathProvider = lambda parent: parent.relative_path(path_segment)
+    def __init__(self, address_segment: MixerPropertyAddressLike, *, writable: bool = True):
+        if isinstance(address_segment, str):
+            self.address_provider: MixerPropertyAddressProvider = lambda parent: parent.relative_address(
+                address_segment
+            )
         else:
-            self.path_provider = path_segment
+            self.address_provider = address_segment
 
         self.writable = writable
         self.name = None
@@ -264,32 +266,32 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
     def __get__(self, instance: MixerNode | None, owner: type[MixerNode]) -> "MixerProperty[T] | T":
         if instance is None:
             return self
-        path = self.path_provider(instance)
+        address = self.address_provider(instance)
         if self.name in instance.disabled_children_names:
             raise RuntimeError(
-                f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{path}')."
+                f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{address}')."
             )
-        raw = instance._client.read(path)
+        raw = instance._client.read(address)
         return self.decode(raw, instance)
 
     def __set__(self, instance: MixerNode, value: T):
-        path, encoded = self._validate_write(instance, value)
-        instance._client.write(path, encoded)
+        address, encoded = self._validate_write(instance, value)
+        instance._client.write(address, encoded)
 
     def commit(self, instance: MixerNode, value: T, *, strict_confirm: bool = True):
-        path, encoded = self._validate_write(instance, value)
-        result = instance._client.commit(path, encoded, strict_confirm=strict_confirm)
+        address, encoded = self._validate_write(instance, value)
+        result = instance._client.commit(address, encoded, strict_confirm=strict_confirm)
         return self.decode(result, instance)
 
     def _validate_write(self, instance: MixerNode, value: T):
-        path = self.path_provider(instance)
+        address = self.address_provider(instance)
         if not self.writable:
-            raise AttributeError(f"Property '{self.name}' is read-only (internal path: '{path}').")
+            raise AttributeError(f"Property '{self.name}' is read-only (internal path: '{address}').")
         if self.name in instance.disabled_children_names:
             raise RuntimeError(
-                f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{path}')."
+                f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{address}')."
             )
-        return path, self.encode(value, instance)
+        return address, self.encode(value, instance)
 
 
 @dataclasses.dataclass
@@ -332,7 +334,7 @@ class MixerNodeFactory(Generic[N]):
 
     def __init__(
         self,
-        path_segment: str,
+        address_segment: str,
         node_type: type[N] | None,
         *,
         context_factory: Callable[[MixerNode], frozendict] | None = None,
@@ -341,14 +343,14 @@ class MixerNodeFactory(Generic[N]):
         kwargs: dict[str, Any] | None = None,
         kwargs_factory: Callable[[MixerNode], dict[str, Any]] | None = None,
     ):
-        self.path_segment = path_segment
+        self.address_segment = address_segment
         self.node_type = node_type
         self.context_factory = context_factory
         self.description = description
         self.description_suffix = description_suffix
         self.kwargs = kwargs or {}
         self.kwargs_factory = kwargs_factory
-        self.name = path_segment
+        self.name = address_segment
 
     def __set_name__(self, owner: type[MixerNode], name: str):
         self.name = name
@@ -392,7 +394,7 @@ class MixerNodeFactory(Generic[N]):
             child_kwargs.update(self.kwargs_factory(parent))
         return node_type(
             client=parent._client,
-            base_path=parent.relative_path(self.path_segment),
+            base_address=parent.relative_address(self.address_segment),
             context=context,
             **child_kwargs,
         )

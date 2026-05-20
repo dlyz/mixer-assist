@@ -4,13 +4,13 @@ from enum import IntEnum
 from typing import Any, TypeVar, override
 
 from ..attribure_docs import get_class_attribute_docs
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike
 
 
 class IntProperty(MixerProperty[int]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         minimum: int,
         maximum: int,
         *,
@@ -21,7 +21,7 @@ class IntProperty(MixerProperty[int]):
     ):
         if minimum > maximum:
             raise ValueError(f"minimum must be less or equal than maximum, got {minimum} > {maximum}")
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self.minimum = minimum
         self.maximum = maximum
         self.descriptor = MixerPropDescriptor(
@@ -61,14 +61,14 @@ class IntProperty(MixerProperty[int]):
 class StringProperty(MixerProperty[str]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         max_len: int,
         *,
         min_len: int = 0,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self.min_len = min_len
         self.max_len = max_len
         self.descriptor = MixerPropDescriptor(
@@ -105,12 +105,12 @@ class StringProperty(MixerProperty[str]):
 class BoolProperty(MixerProperty[bool]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         *,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self.descriptor = MixerPropDescriptor(
             type="bool",
             description=description,
@@ -154,13 +154,13 @@ E = TypeVar("E", bound=IntEnum)
 class EnumIntProperty(MixerProperty[E]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         enum_type: type[E],
         *,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self.enum_type = enum_type
 
         if hasattr(enum_type, "_LABELS"):
@@ -231,7 +231,7 @@ class EnumIntProperty(MixerProperty[E]):
 class FloatProperty(MixerProperty[float]):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         minimum: float,
         maximum: float,
         *,
@@ -244,7 +244,7 @@ class FloatProperty(MixerProperty[float]):
     ):
         if minimum >= maximum:
             raise ValueError(f"minimum must be less than maximum, got {minimum} >= {maximum}")
-        super().__init__(path_segment, writable=writable)
+        super().__init__(address_segment, writable=writable)
         self.minimum = minimum
         self.maximum = maximum
         self.decimals = decimals
@@ -329,7 +329,7 @@ class LinearFloatProperty(FloatProperty):
 class LogFloatProperty(FloatProperty):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         minimum: float,
         maximum: float,
         *,
@@ -342,7 +342,7 @@ class LogFloatProperty(FloatProperty):
         if minimum <= 0 or maximum <= 0:
             raise ValueError(f"log range values must be positive, got {minimum}..{maximum}")
         super().__init__(
-            path_segment,
+            address_segment,
             minimum,
             maximum,
             writable=writable,

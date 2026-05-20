@@ -1,13 +1,13 @@
 from typing import Any, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyPathLike
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike
 
 
 class DynRatioProperty(MixerProperty[float]):
     _ratios: tuple[float, ...] = (1.1, 1.3, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.0, 10.0, 20.0, 100.0)
 
-    def __init__(self, path_segment: MixerPropertyPathLike, *, writable: bool = True):
-        super().__init__(path_segment, writable=writable)
+    def __init__(self, address_segment: MixerPropertyAddressLike, *, writable: bool = True):
+        super().__init__(address_segment, writable=writable)
         allowed = ", ".join(str(value) for value in self._ratios)
         self.descriptor = MixerPropDescriptor(
             type="float",

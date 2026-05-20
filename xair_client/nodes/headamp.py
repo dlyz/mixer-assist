@@ -46,7 +46,7 @@ class HeadAmps(MixerCollectionNode[HeadAmp | LineHeadAmp]):
             return super()._create_item_name(num)
 
     @override
-    def _create_item(self, num: int, path_segment: str):
+    def _create_item(self, num: int, address_segment: str):
         disable = False
         if num > self.mixer_model.num_headamp:
             item_type = LineHeadAmp
@@ -54,7 +54,7 @@ class HeadAmps(MixerCollectionNode[HeadAmp | LineHeadAmp]):
                 disable = num % 2 == 0
         else:
             item_type = HeadAmp
-        result = super()._create_typed_item(item_type, num=num, path_segment=path_segment)
+        result = super()._create_typed_item(item_type, num=num, address_segment=address_segment)
         if disable:
             result.disabled = True
         return result

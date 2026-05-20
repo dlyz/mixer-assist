@@ -1,6 +1,6 @@
 from typing import override
 
-from ..nodes_base import MixerPropertyPathLike
+from ..nodes_base import MixerPropertyAddressLike
 
 from .primitive import FloatProperty, LinearFloatProperty
 
@@ -8,14 +8,14 @@ from .primitive import FloatProperty, LinearFloatProperty
 class FaderProperty(FloatProperty):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         *,
         writable: bool = True,
         grid_size: int = 161,
         description: str | None = None,
     ):
         super().__init__(
-            path_segment,
+            address_segment,
             minimum=-90.0,
             maximum=10.0,
             writable=writable,
@@ -54,24 +54,24 @@ class FaderProperty(FloatProperty):
 class MainFaderProperty(FaderProperty):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike,
+        address_segment: MixerPropertyAddressLike,
         *,
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, writable=writable, grid_size=1024, description=description)
+        super().__init__(address_segment, writable=writable, grid_size=1024, description=description)
 
 
 class PanProperty(LinearFloatProperty):
     def __init__(
         self,
-        path_segment: MixerPropertyPathLike = "pan",
+        address_segment: MixerPropertyAddressLike = "pan",
         *,
         writable: bool = True,
         description: str | None = None,
     ):
         super().__init__(
-            path_segment,
+            address_segment,
             -1.0,
             1.0,
             decimals=2,
