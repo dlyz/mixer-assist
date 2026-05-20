@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import dataclasses
+import enum
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar, overload, override
 
 from frozendict import frozendict
@@ -198,10 +199,21 @@ class MixerCollectionNode(MixerNode, Generic[N]):
 T = TypeVar("T")
 
 
+class MixerPropertyRWMode(enum.Enum):
+    ReadWrite = (0,)
+    ReadOnly = (1,)
+    WriteOnly = (2,)
+
+
 # this class is not required, it could be a part of MixerProp
 # but we use it so that when we need a field of MixerProp type,
 # the type checker won't confuse it with python descriptor.
 class MixerPropertyBase(ABC, Generic[T]):
+    @property
+    @abstractmethod
+    def rw_mode(self) -> MixerPropertyRWMode:
+        raise NotImplementedError
+
     @abstractmethod
     def parse(self, value: str) -> T:
         raise NotImplementedError
@@ -230,7 +242,9 @@ type MixerPropertyAddressLike = str | MixerPropertyAddressProvider
 
 
 class MixerProperty(MixerPropertyBase[T], Generic[T]):
-    def __init__(self, address_segment: MixerPropertyAddressLike, *, writable: bool = True):
+    def __init__(
+        self, address_segment: MixerPropertyAddressLike, *, rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite
+    ):
         if isinstance(address_segment, str):
             self.address_provider: MixerPropertyAddressProvider = lambda parent: parent.relative_address(
                 address_segment
@@ -238,8 +252,13 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
         else:
             self.address_provider = address_segment
 
-        self.writable = writable
+        self._rw_mode = rw_mode
         self.name = None
+
+    @property
+    @override
+    def rw_mode(self):
+        return self._rw_mode
 
     def __set_name__(self, owner: type[MixerNode], name: str):
         self.name = name
@@ -276,20 +295,28 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
 
     def __set__(self, instance: MixerNode, value: T):
         address, encoded = self._validate_write(instance, value)
-        instance._client.write(address, encoded)
+        if self.rw_mode == MixerPropertyRWMode.WriteOnly:
+            instance._client.post(address, encoded)
+        else:
+            instance._client.write(address, encoded)
 
     def commit(self, instance: MixerNode, value: T, *, strict_confirm: bool = True):
         address, encoded = self._validate_write(instance, value)
+        if self.rw_mode == MixerPropertyRWMode.WriteOnly:
+            raise AttributeError(
+                f"Property '{self.name}' is write-only and could not be committed with confirmation, use setter instead (osc address: '{address}')."
+            )
+
         result = instance._client.commit(address, encoded, strict_confirm=strict_confirm)
         return self.decode(result, instance)
 
     def _validate_write(self, instance: MixerNode, value: T):
         address = self.address_provider(instance)
-        if not self.writable:
-            raise AttributeError(f"Property '{self.name}' is read-only (internal path: '{address}').")
+        if self.rw_mode == MixerPropertyRWMode.ReadOnly:
+            raise AttributeError(f"Property '{self.name}' is read-only (osc address: '{address}').")
         if self.name in instance.disabled_children_names:
             raise RuntimeError(
-                f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{address}')."
+                f"Property '{self.name}' is disabled and probably could not be accessed (osc address: '{address}')."
             )
         return address, self.encode(value, instance)
 

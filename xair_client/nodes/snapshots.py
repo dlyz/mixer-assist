@@ -7,7 +7,7 @@ from ..properties.codec_type import CodecType, CodecTypeMixerProperty
 
 from ..properties.primitive import IntProperty, StringProperty
 
-from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory, MixerPropDescriptor
+from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory, MixerPropDescriptor, MixerPropertyRWMode
 
 
 SNAPSHOT_SLOTS_COUNT = 64
@@ -506,7 +506,7 @@ class SnapshotRecallScope(CodecType):
         return cls(strips, parameters, globals)
 
     @classmethod
-    def make_node_descriptor(cls, parent: MixerNode, writable: bool):
+    def make_node_descriptor(cls, parent: MixerNode):
         return MixerPropDescriptor(type="str", description=RECALL_SCOPE_DESCRIPTION)
 
 
@@ -536,17 +536,17 @@ class Snapshots(MixerNode):
     # could actually be used to inspect "working" snapshot, but not reliably
     # current_index = IntProperty("index", 1, SNAPSHOT_SLOTS_COUNT)
 
-    load = IntProperty("load", 1, SNAPSHOT_SLOTS_COUNT)  # non-readable
+    load = IntProperty("load", 1, SNAPSHOT_SLOTS_COUNT, rw_mode=MixerPropertyRWMode.WriteOnly)
     """Setting a snapshot slot number to this property will lead to loading the snapshot into the mixer state.
     Reading this property is useless."""
 
     name_to_save = StringProperty("name", max_len=31)
     """Set it only before saving the snapshot. To read the name of particular snapshot see slots."""
 
-    save = IntProperty("save", 1, SNAPSHOT_SLOTS_COUNT)  # non-readable
+    save = IntProperty("save", 1, SNAPSHOT_SLOTS_COUNT, rw_mode=MixerPropertyRWMode.WriteOnly)
     """Setting a snapshot slot number to this property will lead to saving current mixer state to that slot using snapshot name from `name_to_save`.
     Reading this property is useless."""
 
-    delete = IntProperty("delete", 1, SNAPSHOT_SLOTS_COUNT)  # non-readable
+    delete = IntProperty("delete", 1, SNAPSHOT_SLOTS_COUNT, rw_mode=MixerPropertyRWMode.WriteOnly)
     """Setting a snapshot slot number to this property will lead to deleting snapshot from this slot and clearing the slot.
     Reading this property is useless."""

@@ -1,6 +1,6 @@
 from typing import Any, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike, MixerPropertyRWMode
 
 
 class GroupMaskProperty(MixerProperty[str]):
@@ -8,10 +8,10 @@ class GroupMaskProperty(MixerProperty[str]):
         self,
         address_segment: MixerPropertyAddressLike,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         description: str | None = None,
     ):
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.description = description
 
     @override

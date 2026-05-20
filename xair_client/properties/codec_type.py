@@ -1,7 +1,7 @@
 import abc
 from typing import Any, Self, TypeVar, override
 
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike, MixerPropertyRWMode
 
 
 class CodecType(abc.ABC):
@@ -21,7 +21,7 @@ class CodecType(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def make_node_descriptor(cls, parent: MixerNode, writable: bool) -> MixerPropDescriptor:
+    def make_node_descriptor(cls, parent: MixerNode) -> MixerPropDescriptor:
         raise NotImplementedError
 
 
@@ -34,12 +34,12 @@ class CodecTypeMixerProperty(MixerProperty[C]):
         address_segment: MixerPropertyAddressLike,
         codec_type: type[C],
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         units: str | None = None,
         constraints: str | None = None,
         description: str | None = None,
     ):
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.codec_type = codec_type
         self.units = units
         self.constraints = constraints
@@ -59,7 +59,7 @@ class CodecTypeMixerProperty(MixerProperty[C]):
 
     @override
     def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
-        type_descriptor = self.codec_type.make_node_descriptor(parent, writable=self.writable)
+        type_descriptor = self.codec_type.make_node_descriptor(parent)
 
         description = self.description
         if not description and self.name:

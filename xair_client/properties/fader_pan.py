@@ -1,28 +1,39 @@
 from typing import override
 
-from ..nodes_base import MixerPropertyAddressLike
+from ..nodes_base import MixerPropertyAddressLike, MixerPropertyRWMode
 
 from .primitive import FloatProperty, LinearFloatProperty
 
 
 class FaderProperty(FloatProperty):
+    MINIMUM = -90.0
+    MAXIMUM = 10.0
+
+    @staticmethod
+    def clamp_level(level: float):
+        return min(max(level, FaderProperty.MINIMUM), FaderProperty.MAXIMUM)
+
+    @staticmethod
+    def level_to_fader_hight(level: float):
+        return max(0, level - FaderProperty.MINIMUM)
+
     def __init__(
         self,
         address_segment: MixerPropertyAddressLike,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         grid_size: int = 161,
         description: str | None = None,
     ):
         super().__init__(
             address_segment,
-            minimum=-90.0,
-            maximum=10.0,
-            writable=writable,
+            minimum=self.MINIMUM,
+            maximum=self.MAXIMUM,
+            rw_mode=rw_mode,
             decimals=1,
             grid_size=grid_size,
             units="dB",
-            extra_constraints=f", {-90} means -inf",
+            extra_constraints=f", {self.MINIMUM} means -inf",
             description=description,
         )
 
@@ -56,10 +67,10 @@ class MainFaderProperty(FaderProperty):
         self,
         address_segment: MixerPropertyAddressLike,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         description: str | None = None,
     ):
-        super().__init__(address_segment, writable=writable, grid_size=1024, description=description)
+        super().__init__(address_segment, rw_mode=rw_mode, grid_size=1024, description=description)
 
 
 class PanProperty(LinearFloatProperty):
@@ -67,7 +78,7 @@ class PanProperty(LinearFloatProperty):
         self,
         address_segment: MixerPropertyAddressLike = "pan",
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         description: str | None = None,
     ):
         super().__init__(
@@ -76,6 +87,6 @@ class PanProperty(LinearFloatProperty):
             1.0,
             decimals=2,
             grid_size=101,
-            writable=writable,
+            rw_mode=rw_mode,
             description=description,
         )

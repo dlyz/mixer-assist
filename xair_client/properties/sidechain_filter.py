@@ -82,7 +82,7 @@ class SidechainKeySource(CodecType):
 
     @classmethod
     @override
-    def make_node_descriptor(cls, parent: MixerNode, writable: bool) -> MixerPropDescriptor:
+    def make_node_descriptor(cls, parent: MixerNode) -> MixerPropDescriptor:
         return MixerPropDescriptor(
             type="str",
             constraints=f"one of: self, ch:<1..{parent.mixer_model.num_channels}>, bus:<1..{parent.mixer_model.num_bus}>",

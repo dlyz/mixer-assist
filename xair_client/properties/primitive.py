@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import Any, TypeVar, override
 
 from ..attribure_docs import get_class_attribute_docs
-from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike
+from ..nodes_base import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike, MixerPropertyRWMode
 
 
 class IntProperty(MixerProperty[int]):
@@ -14,14 +14,14 @@ class IntProperty(MixerProperty[int]):
         minimum: int,
         maximum: int,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         units: str | None = None,
         extra_constraints: str = "",
         description: str | None = None,
     ):
         if minimum > maximum:
             raise ValueError(f"minimum must be less or equal than maximum, got {minimum} > {maximum}")
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.minimum = minimum
         self.maximum = maximum
         self.descriptor = MixerPropDescriptor(
@@ -65,10 +65,10 @@ class StringProperty(MixerProperty[str]):
         max_len: int,
         *,
         min_len: int = 0,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         description: str | None = None,
     ):
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.min_len = min_len
         self.max_len = max_len
         self.descriptor = MixerPropDescriptor(
@@ -107,10 +107,10 @@ class BoolProperty(MixerProperty[bool]):
         self,
         address_segment: MixerPropertyAddressLike,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         description: str | None = None,
     ):
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.descriptor = MixerPropDescriptor(
             type="bool",
             description=description,
@@ -157,10 +157,10 @@ class EnumIntProperty(MixerProperty[E]):
         address_segment: MixerPropertyAddressLike,
         enum_type: type[E],
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         description: str | None = None,
     ):
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.enum_type = enum_type
 
         if hasattr(enum_type, "_LABELS"):
@@ -235,7 +235,7 @@ class FloatProperty(MixerProperty[float]):
         minimum: float,
         maximum: float,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         decimals: int | None = None,
         grid_size: int | None = None,
         units: str | None = None,
@@ -244,7 +244,7 @@ class FloatProperty(MixerProperty[float]):
     ):
         if minimum >= maximum:
             raise ValueError(f"minimum must be less than maximum, got {minimum} >= {maximum}")
-        super().__init__(address_segment, writable=writable)
+        super().__init__(address_segment, rw_mode=rw_mode)
         self.minimum = minimum
         self.maximum = maximum
         self.decimals = decimals
@@ -333,7 +333,7 @@ class LogFloatProperty(FloatProperty):
         minimum: float,
         maximum: float,
         *,
-        writable: bool = True,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
         decimals: int | None = None,
         grid_size: int | None = None,
         units: str | None = None,
@@ -345,7 +345,7 @@ class LogFloatProperty(FloatProperty):
             address_segment,
             minimum,
             maximum,
-            writable=writable,
+            rw_mode=rw_mode,
             decimals=decimals,
             grid_size=grid_size,
             units=units,
