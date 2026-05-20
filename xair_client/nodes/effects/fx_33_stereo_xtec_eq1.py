@@ -53,14 +53,14 @@ class StereoXtecEq1FxParams(MixerNode):
     description = 'Stereo Xtec EQ1 effect parameters (Equalizer category).'
 
     on = BoolProperty("01")
-    gain = LinearFloatProperty("02", -12.0, 12.0, decimals=1, units='dB')
-    low_boost = LinearFloatProperty("03", 0.0, 10.0, decimals=1)
+    gain = LinearFloatProperty("02", -12.0, 12.0, decimals=1, grid_size=49, units='dB')
+    low_boost = LinearFloatProperty("03", 0.0, 10.0, decimals=1, grid_size=101)
     low_frequency = EnumIntProperty("04", LowFrequencyOptions)
-    low_attenuation = LinearFloatProperty("05", 0.0, 10.0, decimals=1)
-    high_bandwidth = LinearFloatProperty("06", 0.0, 10.0, decimals=1)
-    high_boost = LinearFloatProperty("07", 0.0, 10.0, decimals=1)
+    low_attenuation = LinearFloatProperty("05", 0.0, 10.0, decimals=1, grid_size=101)
+    high_bandwidth = LinearFloatProperty("06", 0.0, 10.0, decimals=1, grid_size=101)
+    high_boost = LinearFloatProperty("07", 0.0, 10.0, decimals=1, grid_size=101)
     high_frequency = EnumIntProperty("08", HighFrequencyOptions)
-    high_attenuation = LinearFloatProperty("09", 0.0, 10.0, decimals=1)
+    high_attenuation = LinearFloatProperty("09", 0.0, 10.0, decimals=1, grid_size=101)
     attenuation_selector = EnumIntProperty("10", AttenuationSelectorOptions)
     transfer = BoolProperty("11")
 

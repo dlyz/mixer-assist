@@ -1,0 +1,89 @@
+id: 18
+name: Rotary Speaker
+category: Modulation
+parameters:
+- id: 0
+  number: '01'
+  name: Low speed
+  type: double
+  style: tap
+  precision: 2
+  minimum: 0.1
+  maximum: 4
+  unit: Hz
+  scale: log
+  oscType: fractional
+  grid_size: 101
+- id: 1
+  number: '02'
+  name: High speed
+  type: double
+  style: tap
+  precision: 2
+  minimum: 2
+  maximum: 10
+  unit: Hz
+  scale: log
+  oscType: fractional
+  grid_size: 101
+- id: 2
+  number: '03'
+  name: Acceleration
+  type: double
+  precision: 0
+  minimum: 0
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  grid_size: 51
+- id: 3
+  number: '04'
+  name: Distance
+  type: double
+  precision: 0
+  minimum: 0
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  grid_size: 51
+- id: 4
+  number: '05'
+  name: Balance
+  type: double
+  precision: 0
+  minimum: -100
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  component: knob
+  grid_size: 41
+- id: 5
+  number: '06'
+  name: Mix
+  type: double
+  precision: 0
+  minimum: 0
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  component: knob
+  grid_size: 51
+- id: 6
+  number: '07'
+  name: Stop
+  type: boolean
+  style: onOff
+- id: 7
+  number: 08
+  name: Slow / Fast
+  style: toggle
+  type: select
+  options:
+  - id: 0
+    name: Slow
+  - id: 1
+    name: Fast

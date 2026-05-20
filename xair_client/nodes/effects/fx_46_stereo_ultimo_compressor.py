@@ -25,9 +25,9 @@ class StereoUltimoCompressorFxParams(MixerNode):
     description = 'Stereo Ultimo Compressor effect parameters (Compressor category).'
 
     active = BoolProperty("01")
-    input = LinearFloatProperty("02", -48.0, 0.0, decimals=0, units='dB')
-    output = LinearFloatProperty("03", -48.0, 0.0, decimals=0, units='dB')
-    attack = LinearFloatProperty("04", 1.0, 7.0, decimals=1)
-    release = LinearFloatProperty("05", 1.0, 7.0, decimals=1)
+    input = LinearFloatProperty("02", -48.0, 0.0, decimals=0, grid_size=49, units='dB')
+    output = LinearFloatProperty("03", -48.0, 0.0, decimals=0, grid_size=49, units='dB')
+    attack = LinearFloatProperty("04", 1.0, 7.0, decimals=1, grid_size=61)
+    release = LinearFloatProperty("05", 1.0, 7.0, decimals=1, grid_size=61)
     ratio = EnumIntProperty("06", RatioOptions)
 

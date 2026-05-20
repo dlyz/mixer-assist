@@ -18,13 +18,13 @@ class DualLeisureCompressorFxParams(MixerNode):
     description = 'Dual Leisure Compressor effect parameters (Compressor category).'
 
     a_on = BoolProperty("01")
-    a_gain = LinearFloatProperty("02", 0.0, 100.0, decimals=0)
-    a_peak_reduction = LinearFloatProperty("03", 0.0, 100.0, decimals=0)
+    a_gain = LinearFloatProperty("02", 0.0, 100.0, decimals=0, grid_size=51)
+    a_peak_reduction = LinearFloatProperty("03", 0.0, 100.0, decimals=0, grid_size=51)
     a_compressor_limiter = EnumIntProperty("04", ACompressorLimiterOptions)
-    a_output_gain = LinearFloatProperty("05", -18.0, 6.0, decimals=1, units='dB')
+    a_output_gain = LinearFloatProperty("05", -18.0, 6.0, decimals=1, grid_size=49, units='dB')
     b_on = BoolProperty("06")
-    b_gain = LinearFloatProperty("07", 0.0, 100.0, decimals=0)
-    b_peak_reduction = LinearFloatProperty("08", 0.0, 100.0, decimals=0)
+    b_gain = LinearFloatProperty("07", 0.0, 100.0, decimals=0, grid_size=51)
+    b_peak_reduction = LinearFloatProperty("08", 0.0, 100.0, decimals=0, grid_size=51)
     b_compressor_limiter = EnumIntProperty("09", BCompressorLimiterOptions)
-    b_output_gain = LinearFloatProperty("10", -18.0, 6.0, decimals=1, units='dB')
+    b_output_gain = LinearFloatProperty("10", -18.0, 6.0, decimals=1, grid_size=49, units='dB')
 

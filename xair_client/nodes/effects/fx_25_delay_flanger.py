@@ -42,16 +42,16 @@ class DelayPatternOptions(IntEnum):
 class DelayFlangerFxParams(MixerNode):
     description = 'Delay + Flanger effect parameters (Delay category).'
 
-    delay_time = LinearFloatProperty("01", 1.0, 3000.0, decimals=0, units='ms')
+    delay_time = LinearFloatProperty("01", 1.0, 3000.0, decimals=0, grid_size=3000, units='ms')
     delay_pattern = EnumIntProperty("02", DelayPatternOptions)
-    delay_feedback_high_cut = LogFloatProperty("03", 1000.0, 20000.0, decimals=0, units='Hz')
-    delay_feedback = LinearFloatProperty("04", 0.0, 100.0, decimals=0, units='%')
-    cross_feedback = LinearFloatProperty("05", 0.0, 100.0, decimals=0, units='%')
-    balance = LinearFloatProperty("06", -100.0, 100.0, decimals=0, units='%')
-    flanger_speed = LogFloatProperty("07", 0.05, 4.0, decimals=2, units='Hz')
-    flanger_depth = LinearFloatProperty("08", 0.0, 100.0, decimals=0, units='%')
-    flanger_delay = LogFloatProperty("09", 0.5, 50.0, decimals=1, units='ms')
-    flanger_phase = LinearFloatProperty("10", 0.0, 180.0, decimals=0, units='°')
-    flanger_feedback = LinearFloatProperty("11", -90.0, 90.0, decimals=0, units='%')
-    mix = LinearFloatProperty("12", 0.0, 100.0, decimals=0, units='%')
+    delay_feedback_high_cut = LogFloatProperty("03", 1000.0, 20000.0, decimals=0, grid_size=51, units='Hz')
+    delay_feedback = LinearFloatProperty("04", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    cross_feedback = LinearFloatProperty("05", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    balance = LinearFloatProperty("06", -100.0, 100.0, decimals=0, grid_size=41, units='%')
+    flanger_speed = LogFloatProperty("07", 0.05, 4.0, decimals=2, grid_size=101, units='Hz')
+    flanger_depth = LinearFloatProperty("08", 0.0, 100.0, decimals=0, grid_size=21, units='%')
+    flanger_delay = LogFloatProperty("09", 0.5, 50.0, decimals=1, grid_size=51, units='ms')
+    flanger_phase = LinearFloatProperty("10", 0.0, 180.0, decimals=0, grid_size=37, units='°')
+    flanger_feedback = LinearFloatProperty("11", -90.0, 90.0, decimals=0, grid_size=37, units='%')
+    mix = LinearFloatProperty("12", 0.0, 100.0, decimals=0, grid_size=51, units='%')
 

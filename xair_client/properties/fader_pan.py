@@ -11,19 +11,18 @@ class FaderProperty(FloatProperty):
         path_segment: MixerPropertyPathLike,
         *,
         writable: bool = True,
-        minimum: float = -90.0,
-        maximum: float = 10.0,
-        decimals: int = 1,
+        grid_size: int = 161,
         description: str | None = None,
     ):
         super().__init__(
             path_segment,
-            minimum,
-            maximum,
+            minimum=-90.0,
+            maximum=10.0,
             writable=writable,
-            decimals=decimals,
+            decimals=1,
+            grid_size=grid_size,
             units="dB",
-            extra_constraints=f", {minimum} means -inf",
+            extra_constraints=f", {-90} means -inf",
             description=description,
         )
 
@@ -52,6 +51,17 @@ class FaderProperty(FloatProperty):
             return (value + 90.0) / 480.0
 
 
+class MainFaderProperty(FaderProperty):
+    def __init__(
+        self,
+        path_segment: MixerPropertyPathLike,
+        *,
+        writable: bool = True,
+        description: str | None = None,
+    ):
+        super().__init__(path_segment, writable=writable, grid_size=1024, description=description)
+
+
 class PanProperty(LinearFloatProperty):
     def __init__(
         self,
@@ -60,4 +70,12 @@ class PanProperty(LinearFloatProperty):
         writable: bool = True,
         description: str | None = None,
     ):
-        super().__init__(path_segment, -1.0, 1.0, decimals=2, writable=writable, description=description)
+        super().__init__(
+            path_segment,
+            -1.0,
+            1.0,
+            decimals=2,
+            grid_size=101,
+            writable=writable,
+            description=description,
+        )

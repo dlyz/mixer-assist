@@ -14,8 +14,8 @@ class StereoLeisureCompressorFxParams(MixerNode):
     description = 'Stereo Leisure Compressor effect parameters (Compressor category).'
 
     on = BoolProperty("01")
-    gain = LinearFloatProperty("02", 0.0, 100.0, decimals=0)
-    peak_reduction = LinearFloatProperty("03", 0.0, 100.0, decimals=0)
+    gain = LinearFloatProperty("02", 0.0, 100.0, decimals=0, grid_size=51)
+    peak_reduction = LinearFloatProperty("03", 0.0, 100.0, decimals=0, grid_size=51)
     compressor_limiter = EnumIntProperty("04", CompressorLimiterOptions)
-    output_gain = LinearFloatProperty("05", -18.0, 6.0, decimals=1, units='dB')
+    output_gain = LinearFloatProperty("05", -18.0, 6.0, decimals=1, grid_size=49, units='dB')
 

@@ -18,7 +18,7 @@ class ReturnConfig(StripConfig):
 class ReturnPreamp(MixerNode):
     use_usb_input = BoolProperty("rtnsw")
 
-    usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, units="dB")
+    usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, grid_size=145, units="dB")
     "Usable only if use_usb_input is true."
 
 

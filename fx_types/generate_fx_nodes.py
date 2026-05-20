@@ -116,6 +116,7 @@ def render_parameter(parameter: FxParameter, enum_name: str | None = None, digit
         args.append(str(parameter.minimum))
         args.append(str(parameter.maximum))
         args.append(f"decimals={parameter.precision}")
+        args.append(f"grid_size={parameter.grid_size}")
         if parameter.unit:
             args.append(f"units={parameter.unit!r}")
 

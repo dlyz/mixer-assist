@@ -94,9 +94,9 @@ class EqBandType(IntEnum):
 
 class StripEqBand(MixerNode):
     band_type = EnumIntProperty("type", EqBandType)
-    frequency = LogFloatProperty("f", 20.0, 20000.0, decimals=1, units="Hz")
-    gain = LinearFloatProperty("g", -15.0, 15.0, decimals=1, units="dB")
-    quality = InvertedLogFloatProperty("q", 0.3, 10.0, decimals=1, description="Q factor.")
+    frequency = LogFloatProperty("f", 20.0, 20000.0, decimals=1, grid_size=101, units="Hz")
+    gain = LinearFloatProperty("g", -15.0, 15.0, decimals=2, grid_size=121, units="dB")
+    quality = InvertedLogFloatProperty("q", 0.3, 10.0, decimals=1, grid_size=72, description="Q factor.")
 
 
 class DynMode(IntEnum):
@@ -118,25 +118,25 @@ class StripDynamics(MixerNode):
     # Main.
     enabled = BoolProperty("on")
     mode = EnumIntProperty("mode", DynMode)
-    threshold = LinearFloatProperty("thr", -60.0, 0.0, decimals=1, units="dB")
+    threshold = LinearFloatProperty("thr", -60.0, 0.0, decimals=1, grid_size=121, units="dB")
     ratio = DynRatioProperty("ratio")
-    knee = LinearFloatProperty("knee", 0.0, 5.0, decimals=0, units="dB")
-    makeup_gain = LinearFloatProperty("mgain", 0.0, 24.0, decimals=1, units="dB")
-    mix_percent = LinearFloatProperty("mix", 0.0, 100.0, decimals=0, units="%")
+    knee = LinearFloatProperty("knee", 0.0, 5.0, decimals=0, grid_size=6, units="dB")
+    makeup_gain = LinearFloatProperty("mgain", 0.0, 24.0, decimals=2, grid_size=49, units="dB")
+    mix_percent = LinearFloatProperty("mix", 0.0, 100.0, decimals=0, grid_size=51, units="%")
     auto_time = BoolProperty("auto")
 
     # Envelope.
     detector = EnumIntProperty("det", DynDetector)
     envelope = EnumIntProperty("env", DynEnvelope)
-    attack_ms = LinearFloatProperty("attack", 0.0, 120.0, decimals=1, units="ms")
-    hold_ms = LogFloatProperty("hold", 0.02, 2000.0, decimals=1, units="ms")
-    release_ms = LogFloatProperty("release", 5.0, 4000.0, decimals=1, units="ms")
+    attack_ms = LinearFloatProperty("attack", 0.0, 120.0, decimals=0, grid_size=121, units="ms")
+    hold_ms = LogFloatProperty("hold", 0.02, 2000.0, decimals=2, grid_size=101, units="ms")
+    release_ms = LogFloatProperty("release", 5.0, 4000.0, decimals=0, grid_size=101, units="ms")
 
     # Side chain filter.
     sidechain_key_source = CodecTypeMixerProperty("keysrc", SidechainKeySource)
     sidechain_filter_enabled = BoolProperty("filter/on")
     sidechain_filter_type = EnumIntProperty("filter/type", SidechainFilterType)
-    sidechain_filter_frequency = LogFloatProperty("filter/f", 20.0, 20000.0, decimals=1, units="Hz")
+    sidechain_filter_frequency = LogFloatProperty("filter/f", 20.0, 20000.0, decimals=1, grid_size=101, units="Hz")
 
 
 class StripGroups(MixerNode):

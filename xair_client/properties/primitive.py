@@ -237,6 +237,7 @@ class FloatProperty(MixerProperty[float]):
         *,
         writable: bool = True,
         decimals: int | None = None,
+        grid_size: int | None = None,
         units: str | None = None,
         extra_constraints: str = "",
         description: str | None = None,
@@ -247,6 +248,7 @@ class FloatProperty(MixerProperty[float]):
         self.minimum = minimum
         self.maximum = maximum
         self.decimals = decimals
+        self.grid_size = grid_size
         self.descriptor = MixerPropDescriptor(
             type="float",
             units=units,
@@ -271,10 +273,7 @@ class FloatProperty(MixerProperty[float]):
         raw_value = float(raw)
         if not 0.0 <= raw_value <= 1.0:
             raise ValueError(f"{self.name} raw value must be in range 0.0..1.0, got {raw_value}")
-        value = self._do_decode(raw_value)
-        if self.decimals is not None:
-            return smart_round(value, self.decimals)
-        return value
+        return self._do_decode(raw_value)
 
     @abc.abstractmethod
     def _do_decode(self, raw_value: float) -> float:
@@ -283,9 +282,13 @@ class FloatProperty(MixerProperty[float]):
     @override
     def encode(self, value: float, instance: MixerNode) -> float:
         numeric_value = float(value)
+
         if not self.minimum <= numeric_value <= self.maximum:
             raise ValueError(f"{self.name} must be in range {self.minimum}..{self.maximum}, got {numeric_value}")
-        return self._do_encode(numeric_value)
+        result = self._do_encode(numeric_value)
+        if self.grid_size is not None:
+            result = snap_to_grid(result, self.grid_size)
+        return result
 
     @abc.abstractmethod
     def _do_encode(self, value: float) -> float:
@@ -299,20 +302,18 @@ class FloatProperty(MixerProperty[float]):
             return f"in range [{minimum}, {maximum}]"
 
 
-def smart_round(value: float, decimals: int):
-    if decimals < 4:
-        # rounding to 4 digits to turn 0.574999988079071... into 0.5750
-        value = round(value, 4)
+def snap_to_grid(osc_float: float, step_count: int) -> float:
+    # Protect bounds
+    osc_float = max(0.0, min(1.0, osc_float))
 
-        from decimal import Decimal, ROUND_HALF_UP
+    # Calculate the max index (e.g., a 101-step grid has indices from 0 to 100)
+    max_index = step_count - 1
 
-        # float to string to remove error
-        d = Decimal(str(value))
+    # Find the nearest integer step index
+    nearest_step = round(osc_float * max_index)
 
-        precision = Decimal("10") ** -decimals
-        return float(d.quantize(precision, rounding=ROUND_HALF_UP))
-    else:
-        return round(value, decimals)
+    # Convert it back to the exact grid float the mixer will echo
+    return nearest_step / max_index
 
 
 class LinearFloatProperty(FloatProperty):
@@ -334,6 +335,7 @@ class LogFloatProperty(FloatProperty):
         *,
         writable: bool = True,
         decimals: int | None = None,
+        grid_size: int | None = None,
         units: str | None = None,
         description: str | None = None,
     ):
@@ -345,6 +347,7 @@ class LogFloatProperty(FloatProperty):
             maximum,
             writable=writable,
             decimals=decimals,
+            grid_size=grid_size,
             units=units,
             description=description,
         )

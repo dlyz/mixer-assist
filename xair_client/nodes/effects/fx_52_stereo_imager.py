@@ -9,11 +9,11 @@ from ...properties.primitive import BoolProperty, EnumIntProperty, InvertedBoolP
 class StereoImagerFxParams(MixerNode):
     description = 'Stereo Imager effect parameters (Enhancer category).'
 
-    balance = LinearFloatProperty("01", -100.0, 100.0, decimals=0, units='%')
-    mono_pan = LinearFloatProperty("02", -100.0, 100.0, decimals=0, units='%')
-    stereo_pan = LinearFloatProperty("03", -100.0, 100.0, decimals=0, units='%')
-    shelve_gain = LinearFloatProperty("04", 0.0, 12.0, decimals=1, units='dB')
-    shelve_frequency = LogFloatProperty("05", 100.0, 1000.0, decimals=0, units='Hz')
-    shelve_q = LogFloatProperty("06", 1.0, 10.0, decimals=2)
-    output_gain = LinearFloatProperty("07", -12.0, 12.0, decimals=1, units='dB')
+    balance = LinearFloatProperty("01", -100.0, 100.0, decimals=0, grid_size=101, units='%')
+    mono_pan = LinearFloatProperty("02", -100.0, 100.0, decimals=0, grid_size=101, units='%')
+    stereo_pan = LinearFloatProperty("03", -100.0, 100.0, decimals=0, grid_size=101, units='%')
+    shelve_gain = LinearFloatProperty("04", 0.0, 12.0, decimals=1, grid_size=25, units='dB')
+    shelve_frequency = LogFloatProperty("05", 100.0, 1000.0, decimals=0, grid_size=25, units='Hz')
+    shelve_q = LogFloatProperty("06", 1.0, 10.0, decimals=2, grid_size=25)
+    output_gain = LinearFloatProperty("07", -12.0, 12.0, decimals=1, grid_size=49, units='dB')
 

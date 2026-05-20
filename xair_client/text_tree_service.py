@@ -50,8 +50,9 @@ class MixerTextTreeService:
         if not isinstance(node, MixerPropertyNode):
             raise ValueError(f"path is not a mixer parameter, but intermediate node: '{path}'")
 
-        node.formatted_value = value
-        return f"{path} = {node.formatted_value}"
+        parsed_value = node.prop.parse(value)
+        actual_value = node.commit_value(parsed_value, strict_confirm=False)
+        return f"{path} = {node.prop.format_value(actual_value)}"
 
 
 def _print_value(node: MixerNode | MixerPropertyNode, indent: str, verbose: bool):

@@ -9,16 +9,16 @@ from ...properties.primitive import BoolProperty, EnumIntProperty, InvertedBoolP
 class DualPitchShifterFxParams(MixerNode):
     description = 'Dual Pitch Shifter effect parameters (Pitch category).'
 
-    a_semi = LinearFloatProperty("01", -12.0, 12.0, decimals=0)
-    a_cent = LinearFloatProperty("02", -50.0, 50.0, decimals=0)
-    a_delay = LogFloatProperty("03", 1.0, 500.0, decimals=1, units='ms')
-    a_gain = LinearFloatProperty("04", 0.0, 100.0, decimals=0, units='%')
-    a_pan = LinearFloatProperty("05", -100.0, 100.0, decimals=0, units='%')
-    mix = LinearFloatProperty("06", 0.0, 100.0, decimals=0, units='%')
-    b_semi = LinearFloatProperty("07", -12.0, 12.0, decimals=0)
-    b_cent = LinearFloatProperty("08", -50.0, 50.0, decimals=0)
-    b_delay = LogFloatProperty("09", 1.0, 500.0, decimals=1, units='ms')
-    b_gain = LinearFloatProperty("10", 0.0, 100.0, decimals=0, units='%')
-    b_pan = LinearFloatProperty("11", -100.0, 100.0, decimals=0, units='%')
-    high_cut = LogFloatProperty("12", 2000.0, 20000.0, decimals=0, units='Hz')
+    a_semi = LinearFloatProperty("01", -12.0, 12.0, decimals=0, grid_size=25)
+    a_cent = LinearFloatProperty("02", -50.0, 50.0, decimals=0, grid_size=101)
+    a_delay = LogFloatProperty("03", 1.0, 500.0, decimals=1, grid_size=101, units='ms')
+    a_gain = LinearFloatProperty("04", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    a_pan = LinearFloatProperty("05", -100.0, 100.0, decimals=0, grid_size=41, units='%')
+    mix = LinearFloatProperty("06", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    b_semi = LinearFloatProperty("07", -12.0, 12.0, decimals=0, grid_size=25)
+    b_cent = LinearFloatProperty("08", -50.0, 50.0, decimals=0, grid_size=101)
+    b_delay = LogFloatProperty("09", 1.0, 500.0, decimals=1, grid_size=101, units='ms')
+    b_gain = LinearFloatProperty("10", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    b_pan = LinearFloatProperty("11", -100.0, 100.0, decimals=0, grid_size=41, units='%')
+    high_cut = LogFloatProperty("12", 2000.0, 20000.0, decimals=0, grid_size=51, units='Hz')
 

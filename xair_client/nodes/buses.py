@@ -1,8 +1,7 @@
 from enum import IntEnum
-import textwrap
 from typing import override
 
-from ..properties.fader_pan import FaderProperty, PanProperty
+from ..properties.fader_pan import MainFaderProperty, PanProperty
 
 from .strip_common import (
     StereoInsertFxSlot,
@@ -82,40 +81,45 @@ class BusEq(MixerNode):
     high = MixerNodeFactory("6", BusEqBand)
 
 
+class GeqBandProperty(LinearFloatProperty):
+    def __init__(self, path_segment: str):
+        super().__init__(path_segment, -15.0, 15.0, decimals=1, grid_size=61, units="dB")
+
+
 class BusGraphicEQ(MixerNode):
     "Effective only when equalizer (bus eq) mode is GEQ (Graphic EQ) or TEQ (TruEQ)."
 
-    f_20 = LinearFloatProperty("20", -15.0, 15.0, decimals=1, units="dB")
-    f_25 = LinearFloatProperty("25", -15.0, 15.0, decimals=1, units="dB")
-    f_31_5 = LinearFloatProperty("31.5", -15.0, 15.0, decimals=1, units="dB")
-    f_40 = LinearFloatProperty("40", -15.0, 15.0, decimals=1, units="dB")
-    f_50 = LinearFloatProperty("50", -15.0, 15.0, decimals=1, units="dB")
-    f_63 = LinearFloatProperty("63", -15.0, 15.0, decimals=1, units="dB")
-    f_80 = LinearFloatProperty("80", -15.0, 15.0, decimals=1, units="dB")
-    f_100 = LinearFloatProperty("100", -15.0, 15.0, decimals=1, units="dB")
-    f_125 = LinearFloatProperty("125", -15.0, 15.0, decimals=1, units="dB")
-    f_160 = LinearFloatProperty("160", -15.0, 15.0, decimals=1, units="dB")
-    f_200 = LinearFloatProperty("200", -15.0, 15.0, decimals=1, units="dB")
-    f_250 = LinearFloatProperty("250", -15.0, 15.0, decimals=1, units="dB")
-    f_315 = LinearFloatProperty("315", -15.0, 15.0, decimals=1, units="dB")
-    f_400 = LinearFloatProperty("400", -15.0, 15.0, decimals=1, units="dB")
-    f_500 = LinearFloatProperty("500", -15.0, 15.0, decimals=1, units="dB")
-    f_630 = LinearFloatProperty("630", -15.0, 15.0, decimals=1, units="dB")
-    f_800 = LinearFloatProperty("800", -15.0, 15.0, decimals=1, units="dB")
-    f_1k = LinearFloatProperty("1k", -15.0, 15.0, decimals=1, units="dB")
-    f_1k25 = LinearFloatProperty("1k25", -15.0, 15.0, decimals=1, units="dB")
-    f_1k6 = LinearFloatProperty("1k6", -15.0, 15.0, decimals=1, units="dB")
-    f_2k = LinearFloatProperty("2k", -15.0, 15.0, decimals=1, units="dB")
-    f_2k5 = LinearFloatProperty("2k5", -15.0, 15.0, decimals=1, units="dB")
-    f_3k15 = LinearFloatProperty("3k15", -15.0, 15.0, decimals=1, units="dB")
-    f_4k = LinearFloatProperty("4k", -15.0, 15.0, decimals=1, units="dB")
-    f_5k = LinearFloatProperty("5k", -15.0, 15.0, decimals=1, units="dB")
-    f_6k3 = LinearFloatProperty("6k3", -15.0, 15.0, decimals=1, units="dB")
-    f_8k = LinearFloatProperty("8k", -15.0, 15.0, decimals=1, units="dB")
-    f_10k = LinearFloatProperty("10k", -15.0, 15.0, decimals=1, units="dB")
-    f_12k5 = LinearFloatProperty("12k5", -15.0, 15.0, decimals=1, units="dB")
-    f_16k = LinearFloatProperty("16k", -15.0, 15.0, decimals=1, units="dB")
-    f_20k = LinearFloatProperty("20k", -15.0, 15.0, decimals=1, units="dB")
+    f_20 = GeqBandProperty("20")
+    f_25 = GeqBandProperty("25")
+    f_31_5 = GeqBandProperty("31.5")
+    f_40 = GeqBandProperty("40")
+    f_50 = GeqBandProperty("50")
+    f_63 = GeqBandProperty("63")
+    f_80 = GeqBandProperty("80")
+    f_100 = GeqBandProperty("100")
+    f_125 = GeqBandProperty("125")
+    f_160 = GeqBandProperty("160")
+    f_200 = GeqBandProperty("200")
+    f_250 = GeqBandProperty("250")
+    f_315 = GeqBandProperty("315")
+    f_400 = GeqBandProperty("400")
+    f_500 = GeqBandProperty("500")
+    f_630 = GeqBandProperty("630")
+    f_800 = GeqBandProperty("800")
+    f_1k = GeqBandProperty("1k")
+    f_1k25 = GeqBandProperty("1k25")
+    f_1k6 = GeqBandProperty("1k6")
+    f_2k = GeqBandProperty("2k")
+    f_2k5 = GeqBandProperty("2k5")
+    f_3k15 = GeqBandProperty("3k15")
+    f_4k = GeqBandProperty("4k")
+    f_5k = GeqBandProperty("5k")
+    f_6k3 = GeqBandProperty("6k3")
+    f_8k = GeqBandProperty("8k")
+    f_10k = GeqBandProperty("10k")
+    f_12k5 = GeqBandProperty("12k5")
+    f_16k = GeqBandProperty("16k")
+    f_20k = GeqBandProperty("20k")
 
 
 class BusMix(MixerNode):
@@ -125,7 +129,7 @@ class BusMix(MixerNode):
     """
 
     mute = InvertedBoolProperty("on")
-    fader = FaderProperty("fader")
+    fader = MainFaderProperty("fader")
     send_to_main = BoolProperty("lr")
 
 
@@ -182,7 +186,7 @@ class MainLRMix(MixerNode):
     """
 
     mute = InvertedBoolProperty("on")
-    fader = FaderProperty("fader")
+    fader = MainFaderProperty("fader")
     pan = PanProperty("pan")
 
 

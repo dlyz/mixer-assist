@@ -59,12 +59,12 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 ## TODO
 
-- Fix reading old value after the write.
 - Make terminology more consistent and compliant with industry.
   - Describe snapshot recall scope elements.
   - 'Path' term is used for internal OSC commands as well as for external api. That leads to confusion in the code and in some error messages that will mention internal paths.
   - Figure out how stereo/dual fx inserts work for one insert, for two inserts, for one stereo insert, for mono/stereo send/return. Update descriptions accordingly.
 - Channel insert fx slots may conflict with each other. M Air checks for that. Maybe move insert props to the fx.
+- RTA and meters
 - Add installation steps to readme with UV.
 
 ## Useful resources

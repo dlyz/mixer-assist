@@ -6,16 +6,22 @@ from ..nodes_base import MixerCollectionNode, MixerNode
 
 
 class HeadAmp(MixerNode):
-    "Settings for the mixer input. Input is assigned to the channel in the channel's config section."
+    """Settings for the mixer's physical input's preamp.
+    CAUTION: changing this parameters may be unsafe. Be sure you know what you are doing.
+    Input is assigned to the channel in the channel's config section."""
 
-    gain = LinearFloatProperty("gain", -12.0, 60.0, decimals=1, units="dB")
-    phantom = BoolProperty("phantom")
+    gain = LinearFloatProperty("gain", -12.0, 60.0, decimals=1, grid_size=145, units="dB")
+    phantom = BoolProperty(
+        "phantom",
+        description="Whether phantom power is enabled for the input. CAUTION! if incompatible device connected, you can burn it.",
+    )
 
 
 class LineHeadAmp(MixerNode):
-    "Settings for the mixer line input. Input is assigned to the channel in the channel's config section."
+    """Settings for the mixer's physical line input.
+    Input is assigned to the channel in the channel's config section."""
 
-    gain = LinearFloatProperty("gain", -12.0, 20.0, decimals=1, units="dB")
+    gain = LinearFloatProperty("gain", -12.0, 20.0, decimals=1, grid_size=65, units="dB")
 
 
 class HeadAmps(MixerCollectionNode[HeadAmp | LineHeadAmp]):

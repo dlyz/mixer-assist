@@ -11,6 +11,9 @@
 			"program": "repl.py",
 			"console": "integratedTerminal",
 			"justMyCode": false,
+			"env": {
+				"LOG_LEVEL_XAIR": "DEBUG",
+			}
 		}
 	]
 }

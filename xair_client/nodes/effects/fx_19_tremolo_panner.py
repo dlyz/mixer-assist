@@ -9,13 +9,13 @@ from ...properties.primitive import BoolProperty, EnumIntProperty, InvertedBoolP
 class TremoloPannerFxParams(MixerNode):
     description = 'Tremolo / Panner effect parameters (Modulation category).'
 
-    speed = LogFloatProperty("01", 0.05, 5.0, decimals=2, units='Hz')
-    phase = LinearFloatProperty("02", 0.0, 180.0, decimals=0, units='°')
-    wave = LinearFloatProperty("03", -50.0, 50.0, decimals=0)
-    depth = LinearFloatProperty("04", 0.0, 100.0, decimals=0, units='%')
-    env_speed = LinearFloatProperty("05", 0.0, 100.0, decimals=0, units='%')
-    env_depth = LinearFloatProperty("06", 0.0, 100.0, decimals=0, units='%')
-    attack = LogFloatProperty("07", 10.0, 1000.0, decimals=0, units='ms')
-    hold = LogFloatProperty("08", 1.0, 2000.0, decimals=0, units='ms')
-    release = LogFloatProperty("09", 10.0, 1000.0, decimals=0, units='ms')
+    speed = LogFloatProperty("01", 0.05, 5.0, decimals=2, grid_size=101, units='Hz')
+    phase = LinearFloatProperty("02", 0.0, 180.0, decimals=0, grid_size=37, units='°')
+    wave = LinearFloatProperty("03", -50.0, 50.0, decimals=0, grid_size=21)
+    depth = LinearFloatProperty("04", 0.0, 100.0, decimals=0, grid_size=21, units='%')
+    env_speed = LinearFloatProperty("05", 0.0, 100.0, decimals=0, grid_size=21, units='%')
+    env_depth = LinearFloatProperty("06", 0.0, 100.0, decimals=0, grid_size=21, units='%')
+    attack = LogFloatProperty("07", 10.0, 1000.0, decimals=0, grid_size=51, units='ms')
+    hold = LogFloatProperty("08", 1.0, 2000.0, decimals=0, grid_size=51, units='ms')
+    release = LogFloatProperty("09", 10.0, 1000.0, decimals=0, grid_size=51, units='ms')
 

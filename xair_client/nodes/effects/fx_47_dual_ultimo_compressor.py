@@ -40,15 +40,15 @@ class DualUltimoCompressorFxParams(MixerNode):
     description = 'Dual Ultimo Compressor effect parameters (Compressor category).'
 
     a_active = BoolProperty("01")
-    a_input = LinearFloatProperty("02", -48.0, 0.0, decimals=0, units='dB')
-    a_output = LinearFloatProperty("03", -48.0, 0.0, decimals=0, units='dB')
-    a_attack = LinearFloatProperty("04", 1.0, 7.0, decimals=1)
-    a_release = LinearFloatProperty("05", 1.0, 7.0, decimals=1)
+    a_input = LinearFloatProperty("02", -48.0, 0.0, decimals=0, grid_size=49, units='dB')
+    a_output = LinearFloatProperty("03", -48.0, 0.0, decimals=0, grid_size=49, units='dB')
+    a_attack = LinearFloatProperty("04", 1.0, 7.0, decimals=1, grid_size=61)
+    a_release = LinearFloatProperty("05", 1.0, 7.0, decimals=1, grid_size=61)
     a_ratio = EnumIntProperty("06", ARatioOptions)
     b_active = BoolProperty("07")
-    b_input = LinearFloatProperty("08", -48.0, 0.0, decimals=0, units='dB')
-    b_output = LinearFloatProperty("09", -48.0, 0.0, decimals=0, units='dB')
-    b_attack = LinearFloatProperty("10", 1.0, 7.0, decimals=1)
-    b_release = LinearFloatProperty("11", 1.0, 7.0, decimals=1)
+    b_input = LinearFloatProperty("08", -48.0, 0.0, decimals=0, grid_size=49, units='dB')
+    b_output = LinearFloatProperty("09", -48.0, 0.0, decimals=0, grid_size=49, units='dB')
+    b_attack = LinearFloatProperty("10", 1.0, 7.0, decimals=1, grid_size=61)
+    b_release = LinearFloatProperty("11", 1.0, 7.0, decimals=1, grid_size=61)
     b_ratio = EnumIntProperty("12", BRatioOptions)
 

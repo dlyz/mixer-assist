@@ -1,6 +1,6 @@
 from typing import override
 
-from ..properties.fader_pan import FaderProperty
+from ..properties.fader_pan import MainFaderProperty
 
 from .strip_common import StripConfig, StripGroups
 from ..properties.primitive import InvertedBoolProperty
@@ -18,7 +18,7 @@ class FxSendMix(MixerNode):
     """
 
     mute = InvertedBoolProperty("on")
-    fader = FaderProperty("fader")
+    fader = MainFaderProperty("fader")
 
 
 class FxSendGroup(StripGroups):

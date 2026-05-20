@@ -1,9 +1,8 @@
 import argparse
 import os
 from pathlib import Path
-import sys
 from dotenv import load_dotenv
-
+import logging
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -16,6 +15,11 @@ from xair_client.client import XAirConnection
 from xair_client.nodes.mixer import Mixer
 from xair_client.text_tree_service import MixerTextTreeService
 from xair_client.nodes_base import MixerPropertyNode
+
+logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO").upper())
+xair_log_level = os.environ.get("LOG_LEVEL_XAIR")
+if xair_log_level:
+    logging.getLogger("xair_client").setLevel(xair_log_level)
 
 
 class TreePathCompleter(Completer):

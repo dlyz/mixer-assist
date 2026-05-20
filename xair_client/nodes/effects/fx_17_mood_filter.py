@@ -43,18 +43,18 @@ class PolesOptions(IntEnum):
 class MoodFilterFxParams(MixerNode):
     description = 'Mood Filter effect parameters (Modulation category).'
 
-    speed = LogFloatProperty("01", 0.05, 20.0, decimals=2, units='Hz')
-    depth = LinearFloatProperty("02", 0.0, 100.0, decimals=0, units='%')
-    resonance = LinearFloatProperty("03", 0.0, 100.0, decimals=0, units='%')
-    base = LogFloatProperty("04", 20.0, 15000.0, decimals=1, units='Hz')
+    speed = LogFloatProperty("01", 0.05, 20.0, decimals=2, grid_size=151, units='Hz')
+    depth = LinearFloatProperty("02", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    resonance = LinearFloatProperty("03", 0.0, 100.0, decimals=0, grid_size=21, units='%')
+    base = LogFloatProperty("04", 20.0, 15000.0, decimals=1, grid_size=101, units='Hz')
     mode = EnumIntProperty("05", ModeOptions)
-    mix = LinearFloatProperty("06", 0.0, 100.0, decimals=0, units='%')
+    mix = LinearFloatProperty("06", 0.0, 100.0, decimals=0, grid_size=51, units='%')
     wave = EnumIntProperty("07", WaveOptions)
-    phase = LinearFloatProperty("08", 0.0, 180.0, decimals=0, units='°')
-    env_mod = LinearFloatProperty("09", -100.0, 100.0, decimals=0, units='%')
-    attack = LogFloatProperty("10", 10.0, 250.0, decimals=0, units='ms')
-    release = LogFloatProperty("11", 10.0, 500.0, decimals=0, units='ms')
-    drive = LinearFloatProperty("12", 0.0, 100.0, decimals=0, units='%')
+    phase = LinearFloatProperty("08", 0.0, 180.0, decimals=0, grid_size=37, units='°')
+    env_mod = LinearFloatProperty("09", -100.0, 100.0, decimals=0, grid_size=101, units='%')
+    attack = LogFloatProperty("10", 10.0, 250.0, decimals=0, grid_size=51, units='ms')
+    release = LogFloatProperty("11", 10.0, 500.0, decimals=0, grid_size=51, units='ms')
+    drive = LinearFloatProperty("12", 0.0, 100.0, decimals=0, grid_size=51, units='%')
     poles = EnumIntProperty("13", PolesOptions)
     sidechain = BoolProperty("14")
 

@@ -67,12 +67,12 @@ class StereoXtecEq5FxParams(MixerNode):
     description = 'Stereo Xtec EQ5 effect parameters (Equalizer category).'
 
     on = BoolProperty("01")
-    gain = LinearFloatProperty("02", -12.0, 12.0, decimals=1, units='dB')
+    gain = LinearFloatProperty("02", -12.0, 12.0, decimals=1, grid_size=49, units='dB')
     low_frequency = EnumIntProperty("03", LowFrequencyOptions)
-    low_boost = LinearFloatProperty("04", 0.0, 10.0, decimals=1)
+    low_boost = LinearFloatProperty("04", 0.0, 10.0, decimals=1, grid_size=101)
     mid_frequency = EnumIntProperty("05", MidFrequencyOptions)
-    mid_cut = LinearFloatProperty("06", 0.0, 10.0, decimals=1)
+    mid_cut = LinearFloatProperty("06", 0.0, 10.0, decimals=1, grid_size=101)
     high_frequency = EnumIntProperty("07", HighFrequencyOptions)
-    high_boost = LinearFloatProperty("08", 0.0, 10.0, decimals=1)
+    high_boost = LinearFloatProperty("08", 0.0, 10.0, decimals=1, grid_size=101)
     transfer = BoolProperty("09")
 

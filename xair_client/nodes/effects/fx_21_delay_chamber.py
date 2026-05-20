@@ -42,16 +42,16 @@ class DelayPatternOptions(IntEnum):
 class DelayChamberFxParams(MixerNode):
     description = 'Delay + Chamber effect parameters (Reverb category).'
 
-    delay_time = LinearFloatProperty("01", 1.0, 3000.0, decimals=0, units='ms')
+    delay_time = LinearFloatProperty("01", 1.0, 3000.0, decimals=0, grid_size=3000, units='ms')
     delay_pattern = EnumIntProperty("02", DelayPatternOptions)
-    delay_feed_low_cut = LogFloatProperty("03", 1000.0, 20000.0, decimals=0, units='Hz')
-    delay_feedback = LinearFloatProperty("04", 0.0, 100.0, decimals=0, units='%')
-    delay_xfeed = LinearFloatProperty("05", 0.0, 100.0, decimals=0, units='%')
-    balance = LinearFloatProperty("06", -100.0, 100.0, decimals=0, units='%')
-    chamber_pre_delay = LinearFloatProperty("07", 0.0, 200.0, decimals=0, units='ms')
-    chamber_decay = LogFloatProperty("08", 0.1, 5.0, decimals=2, units='s')
-    chamber_size = LinearFloatProperty("09", 2.0, 100.0, decimals=0)
-    chamber_damp = LogFloatProperty("10", 1000.0, 20000.0, decimals=0, units='Hz')
-    low_cut = LogFloatProperty("11", 10.0, 500.0, decimals=0, units='Hz')
-    mix = LinearFloatProperty("12", 0.0, 100.0, decimals=0, units='%')
+    delay_feed_low_cut = LogFloatProperty("03", 1000.0, 20000.0, decimals=0, grid_size=51, units='Hz')
+    delay_feedback = LinearFloatProperty("04", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    delay_xfeed = LinearFloatProperty("05", 0.0, 100.0, decimals=0, grid_size=51, units='%')
+    balance = LinearFloatProperty("06", -100.0, 100.0, decimals=0, grid_size=41, units='%')
+    chamber_pre_delay = LinearFloatProperty("07", 0.0, 200.0, decimals=0, grid_size=101, units='ms')
+    chamber_decay = LogFloatProperty("08", 0.1, 5.0, decimals=2, grid_size=51, units='s')
+    chamber_size = LinearFloatProperty("09", 2.0, 100.0, decimals=0, grid_size=50)
+    chamber_damp = LogFloatProperty("10", 1000.0, 20000.0, decimals=0, grid_size=51, units='Hz')
+    low_cut = LogFloatProperty("11", 10.0, 500.0, decimals=0, grid_size=51, units='Hz')
+    mix = LinearFloatProperty("12", 0.0, 100.0, decimals=0, grid_size=51, units='%')
 

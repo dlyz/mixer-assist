@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import override
 
-from ..properties.fader_pan import FaderProperty, PanProperty
+from ..properties.fader_pan import FaderProperty, MainFaderProperty, PanProperty
 
 from .strip_common import StripEqBand
 
@@ -128,8 +128,8 @@ class ReturnStripMix(MixerNode):
     "Global channel mute, main (lr) mix and mixes for each bus and fx sends."
 
     mute = InvertedBoolProperty("on")
-    main_fader = FaderProperty("fader")
-    main_pan = LinearFloatProperty("pan", -1.0, 1.0, decimals=2)
+    main_fader = MainFaderProperty("fader")
+    main_pan = PanProperty("pan")
     send_to_main = BoolProperty("lr")
     bus_sends = MixerNodeFactory("", ReturnStripBusMix)
     fx_sends = MixerNodeFactory("", ReturnStripFxMix)

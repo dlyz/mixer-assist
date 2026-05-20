@@ -176,7 +176,7 @@ class MixerCollectionNode(MixerNode, Generic[N]):
             item_idx = self._names.index(num_or_name)
             return self._items[item_idx]
 
-    def __contains__(self, item: N):
+    def __contains__(self, item):
         return item in self._items
 
     def __iter__(self):
@@ -273,6 +273,15 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
         return self.decode(raw, instance)
 
     def __set__(self, instance: MixerNode, value: T):
+        path, encoded = self._validate_write(instance, value)
+        instance._client.write(path, encoded)
+
+    def commit(self, instance: MixerNode, value: T, *, strict_confirm: bool = True):
+        path, encoded = self._validate_write(instance, value)
+        result = instance._client.commit(path, encoded, strict_confirm=strict_confirm)
+        return self.decode(result, instance)
+
+    def _validate_write(self, instance: MixerNode, value: T):
         path = self.path_provider(instance)
         if not self.writable:
             raise AttributeError(f"Property '{self.name}' is read-only (internal path: '{path}').")
@@ -280,8 +289,7 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
             raise RuntimeError(
                 f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{path}')."
             )
-        encoded = self.encode(value, instance)
-        instance._client.write(path, encoded)
+        return path, self.encode(value, instance)
 
 
 @dataclasses.dataclass
@@ -305,6 +313,10 @@ class MixerPropertyNode:
     @value.setter
     def value(self, value):
         setattr(self.parent, self.name, value)
+
+    def commit_value(self, value, *, strict_confirm: bool = True):
+        assert isinstance(self.prop, MixerProperty)
+        return self.prop.commit(self.parent, value, strict_confirm=strict_confirm)
 
     @property
     def formatted_value(self):

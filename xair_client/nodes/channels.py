@@ -52,7 +52,7 @@ class ChannelConfig(StripConfig):
     """
 
     analog_source = AnalogSourceProperty("insrc")
-    "Id of analog source (input). To be effective requires use_usb_input to be false in channel's preamp. Gain is in mixer's headamp section."
+    "Id of analog source (input). 0 to disable. To be effective requires use_usb_input to be false in channel's preamp. Gain is in mixer's headamp section."
 
     usb_source = UsbSourceProperty("rtnsrc")
     "Id of usb source. To be effective requires use_usb_input to be true in channel's preamp, and the gain (trim) for usb source is there too."
@@ -67,14 +67,14 @@ class ChannelPreamp(MixerNode):
     use_usb_input = BoolProperty("rtnsw")
     "True if the channel will receive signal from usb return, false - if from analog input. The exact input is set in channel's config section."
 
-    usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, units="dB")
+    usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, grid_size=145, units="dB")
     "Usable only if use_usb_input is true."
 
     invert_phase = BoolProperty("invert")
 
     low_cut_on = BoolProperty("hpon")
 
-    low_cut_freq = LogFloatProperty("hpf", 20.0, 400.0, decimals=1, units="Hz")
+    low_cut_freq = LogFloatProperty("hpf", 20.0, 400.0, decimals=1, grid_size=101, units="Hz")
 
 
 class ChannelGate(MixerNode):
@@ -88,19 +88,19 @@ class ChannelGate(MixerNode):
     # Main
     enabled = BoolProperty("on")
     mode = EnumIntProperty("mode", GateMode)
-    threshold = LinearFloatProperty("thr", -80.0, 0.0, decimals=1, units="dB")
-    reduction_range = LinearFloatProperty("range", 3.0, 60.0, decimals=1, units="dB")
+    threshold = LinearFloatProperty("thr", -80.0, 0.0, decimals=1, grid_size=161, units="dB")
+    reduction_range = LinearFloatProperty("range", 3.0, 60.0, decimals=1, grid_size=58, units="dB")
 
     # Envelope
-    attack_ms = LinearFloatProperty("attack", 0.0, 120.0, decimals=1, units="ms")
-    hold_ms = LogFloatProperty("hold", 0.02, 2000.0, decimals=1, units="ms")
-    release_ms = LogFloatProperty("release", 5.0, 4000.0, decimals=1, units="ms")
+    attack_ms = LinearFloatProperty("attack", 0.0, 120.0, decimals=0, grid_size=121, units="ms")
+    hold_ms = LogFloatProperty("hold", 0.02, 2000.0, decimals=2, grid_size=101, units="ms")
+    release_ms = LogFloatProperty("release", 5.0, 4000.0, decimals=0, grid_size=101, units="ms")
 
     # Side chain filter
     sidechain_key_source = CodecTypeMixerProperty("keysrc", SidechainKeySource)
     sidechain_filter_enabled = BoolProperty("filter/on")
     sidechain_filter_type = EnumIntProperty("filter/type", SidechainFilterType)
-    sidechain_filter_frequency = LogFloatProperty("filter/f", 20.0, 20000.0, decimals=1, units="Hz")
+    sidechain_filter_frequency = LogFloatProperty("filter/f", 20.0, 20000.0, decimals=1, grid_size=101, units="Hz")
 
 
 class ChannelEq(ReturnStripEq):

@@ -1,0 +1,74 @@
+id: 37
+name: Wave Designer
+category: Enhancer
+parameters:
+- id: 0
+  number: '01'
+  name: A | Attack
+  type: double
+  precision: 0
+  minimum: -100
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  component: knob
+  grid_size: 101
+- id: 1
+  number: '02'
+  name: A | Sustain
+  type: double
+  precision: 0
+  minimum: -100
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  component: knob
+  grid_size: 101
+- id: 2
+  number: '03'
+  name: A | Gain
+  type: double
+  precision: 1
+  minimum: -24
+  maximum: 24
+  unit: dB
+  scale: linear
+  oscType: fractional
+  grid_size: 97
+- id: 3
+  number: '04'
+  name: B | Attack
+  type: double
+  precision: 0
+  minimum: -100
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  component: knob
+  grid_size: 101
+- id: 4
+  number: '05'
+  name: B | Sustain
+  type: double
+  precision: 0
+  minimum: -100
+  maximum: 100
+  unit: '%'
+  scale: linear
+  oscType: fractional
+  component: knob
+  grid_size: 101
+- id: 5
+  number: '06'
+  name: B | Gain
+  type: double
+  precision: 1
+  minimum: -24
+  maximum: 24
+  unit: dB
+  scale: linear
+  oscType: fractional
+  grid_size: 97
