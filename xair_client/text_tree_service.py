@@ -81,5 +81,9 @@ def _print_value(node: MixerNode | MixerPropertyNode, indent: str, verbose: bool
         lines.append("")
 
     if verbose and descriptor.description:
-        lines.extend(f"{indent}{line}" for line in descriptor.description.strip().splitlines())
+        description_lines = descriptor.description.strip().splitlines()
+        if any(not line or line.lstrip().startswith("- ") for line in description_lines):
+            description_lines.insert(0, '"""')
+            description_lines.append('"""')
+        lines.extend(f"{indent}{line}" for line in description_lines)
     return lines
