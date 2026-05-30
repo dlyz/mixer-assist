@@ -68,5 +68,12 @@ class Mixer(MixerNode):
     config = MixerNodeFactory("config", MixerConfig)
     snapshots = MixerNodeFactory("-snap", Snapshots)
 
+    def get_all_feeds(self):
+        for _, c in self.channels:
+            yield c
+        yield self.aux_return
+        for _, c in self.fx_returns:
+            yield c
+
     def __init__(self, client: XAirClient):
         super().__init__(client, "/", description=f"{client.mixer_model.name} mixer parameter tree.")

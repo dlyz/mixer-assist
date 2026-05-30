@@ -18,7 +18,7 @@ class ReturnStripEq(MixerNode):
 
 
 class ReturnStripBusSend(MixerNode):
-    class ReturnStripBusSendTap(IntEnum):
+    class Tap(IntEnum):
         """The stage at which the signal from the channel is sent to the bus.
         Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> main fader.
         """
@@ -52,7 +52,7 @@ class ReturnStripBusSend(MixerNode):
     """Effective only when current bus and the next one are joined into a stereo-pair.
     The pan value set on the odd bus applies to the signal within that pair; pan can not be accessed from even buses."""
 
-    tap = EnumIntProperty("tap", ReturnStripBusSendTap)
+    tap = EnumIntProperty("tap", Tap)
 
     send_to_subgroup = BoolProperty("grpon")
     """Effective only when tap is set to SUB_GROUP.
@@ -79,7 +79,7 @@ class ReturnStripBusMix(MixerCollectionNode[ReturnStripBusSend]):
 
 
 class ReturnStripFxSend(MixerNode):
-    class ReturnStripFxSendTap(IntEnum):
+    class Tap(IntEnum):
         """The stage at which the signal from the channel is sent to the fx.
         Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> main fader.
         """
@@ -105,7 +105,7 @@ class ReturnStripFxSend(MixerNode):
     level = FaderProperty("level")
     "Channel fader level for the fx."
 
-    tap = EnumIntProperty("tap", ReturnStripFxSendTap)
+    tap = EnumIntProperty("tap", Tap)
 
     # it exists, but makes no sense without SUB_GROUP tap
     # send_to_subgroup = BoolValue("grpon")

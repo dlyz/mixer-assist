@@ -179,33 +179,38 @@ def main():
                 command_args = command_split[1].strip() if len(command_split) > 1 else ""
 
                 if command == "raw":
-                    raw_path = command_args
-                    result = client.read(raw_path.split()[0], raw_path.split()[1:])
-                    print(f"raw {raw_path} = {result}")
+                    raw_cmd_args = command_args.split()
+                    if len(raw_cmd_args) == 1:
+                        result = client.read(raw_cmd_args[0])
+                    else:
+                        result = client.commit(raw_cmd_args[0], raw_cmd_args[1:])
+
+                    print(f"raw {raw_cmd_args[0]} = {result}")
                 else:
                     if command in {"ls", "ds"}:
-                        raw_path = command_args
-                        target_path = _resolve_path(raw_path, current_path) if raw_path else current_path
+                        raw_address = command_args
+                        target_path = _resolve_path(raw_address, current_path) if raw_address else current_path
                         print(service.expand_node(target_path, verbose=line[0] == "d"))
                         continue
 
                     set_cmd_args = [s.strip() for s in line.split("=", maxsplit=1)]
                     if len(set_cmd_args) > 1:
-                        raw_path, value = set_cmd_args
+                        raw_address, value = set_cmd_args
 
-                        target_path = _resolve_path(raw_path, current_path) if raw_path else current_path
+                        target_path = _resolve_path(raw_address, current_path) if raw_address else current_path
 
                         if not isinstance(service.resolve_node(target_path), MixerPropertyNode):
                             raise ValueError(f"path is not a mixer parameter: '{target_path}'")
 
                         print(service.set_parameter(target_path, value))
-                        continue
 
-                    target_path = _resolve_path(line, current_path)
-                    service.resolve_node(target_path)
-                    current_path = target_path
+                    else:
+                        # implicit read command
+                        target_path = _resolve_path(line, current_path)
+                        service.resolve_node(target_path)
+                        current_path = target_path
 
-                    print(service.expand_node(target_path, verbose=False))
+                        print(service.expand_node(target_path, verbose=False))
 
             except Exception as exc:
                 if isinstance(exc, AssertionError):

@@ -1,3 +1,4 @@
+import time
 from typing import Callable
 
 from .nodes_base import MixerCollectionNode, MixerNode, MixerPropertyNode, MixerPropertyRWMode
@@ -50,12 +51,12 @@ class MixerTextTreeService:
         if not isinstance(node, MixerPropertyNode):
             raise ValueError(f"path is not a mixer parameter, but intermediate node: '{path}'")
 
+        parsed_value = node.prop.parse(value)
+        actual_value = node.commit_value(parsed_value, strict_confirm=False)
+
         if node.prop.rw_mode == MixerPropertyRWMode.WriteOnly:
-            node.formatted_value = value
             return f"{path} = <action_sent>"
         else:
-            parsed_value = node.prop.parse(value)
-            actual_value = node.commit_value(parsed_value, strict_confirm=False)
             return f"{path} = {node.prop.format_value(actual_value)}"
 
 

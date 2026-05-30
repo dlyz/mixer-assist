@@ -54,7 +54,7 @@ class MixerNode:
         description: str | None = None,
         description_suffix: str | None = None,
     ):
-        self._client = client
+        self.client = client
         if base_address.endswith("/"):
             base_address = base_address[:-1]
         self.base_address = base_address
@@ -70,7 +70,7 @@ class MixerNode:
 
     @property
     def mixer_model(self) -> MixerModel:
-        return self._client.mixer_model
+        return self.client.mixer_model
 
     def relative_address(self, segment: str) -> str:
         if not segment:
@@ -130,6 +130,7 @@ class MixerCollectionNode(MixerNode, Generic[N]):
             raise RuntimeError("item_count must be passed to the init or defined by deriving class")
 
         num_range = range(self.item_start, self.item_start + self.item_count)
+        self._num_range = num_range
         self._names = [self._create_item_name(num) for num in num_range]
 
         item_path_start = self.item_path_start if self.item_path_start is not None else self.item_start
@@ -184,6 +185,10 @@ class MixerCollectionNode(MixerNode, Generic[N]):
         assert self.item_count is not None
         num_range = range(self.item_start, self.item_start + self.item_count)
         return zip(num_range, self._items)
+
+    @property
+    def item_numbers(self):
+        return self._num_range
 
     @property
     @override
@@ -290,24 +295,21 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
             raise RuntimeError(
                 f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{address}')."
             )
-        raw = instance._client.read(address)
+        raw = instance.client.read(address)
         return self.decode(raw, instance)
 
     def __set__(self, instance: MixerNode, value: T):
         address, encoded = self._validate_write(instance, value)
-        if self.rw_mode == MixerPropertyRWMode.WriteOnly:
-            instance._client.post(address, encoded)
-        else:
-            instance._client.write(address, encoded)
+        instance.client.write(address, encoded, is_action=(self.rw_mode == MixerPropertyRWMode.WriteOnly))
 
     def commit(self, instance: MixerNode, value: T, *, strict_confirm: bool = True):
         address, encoded = self._validate_write(instance, value)
-        if self.rw_mode == MixerPropertyRWMode.WriteOnly:
-            raise AttributeError(
-                f"Property '{self.name}' is write-only and could not be committed with confirmation, use setter instead (osc address: '{address}')."
-            )
-
-        result = instance._client.commit(address, encoded, strict_confirm=strict_confirm)
+        result = instance.client.commit(
+            address,
+            encoded,
+            strict_confirm=strict_confirm,
+            is_action=(self.rw_mode == MixerPropertyRWMode.WriteOnly),
+        )
         return self.decode(result, instance)
 
     def _validate_write(self, instance: MixerNode, value: T):
@@ -420,7 +422,7 @@ class MixerNodeFactory(Generic[N]):
         if self.kwargs_factory is not None:
             child_kwargs.update(self.kwargs_factory(parent))
         return node_type(
-            client=parent._client,
+            client=parent.client,
             base_address=parent.relative_address(self.address_segment),
             context=context,
             **child_kwargs,

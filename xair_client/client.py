@@ -1,9 +1,11 @@
 import abc
 import logging
+import math
+from pathlib import Path
 import socket
 import threading
 import time
-from typing import Any, override
+from typing import Any, overload, override
 
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.osc_message_builder import OscMessageBuilder
@@ -31,6 +33,10 @@ class XAirCommitConfirmFailed(XAirClientError):
 
 class XAirProtocolError(XAirClientError):
     """Raised when mixer reply shape is invalid for a read operation."""
+
+
+class XAirEmptyReplyError(XAirProtocolError):
+    pass
 
 
 class OSCClientServer(BlockingOSCUDPServer):
@@ -73,7 +79,7 @@ class XAirClient(abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def write(self, address: str, value: Any) -> None:
+    def write(self, address: str, value: Any, *, is_action: bool = False) -> None:
         raise NotImplementedError()
 
     @abc.abstractmethod
@@ -81,13 +87,50 @@ class XAirClient(abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def commit(self, address: str, value: Any, *, strict_confirm: bool = True) -> Any:
+    def commit(self, address: str, value: Any, *, is_action: bool = False, strict_confirm: bool = True) -> Any:
         """Writes specified value and confirms that it is the actual value for that address at the moment.
 
         :param strict_confirm: Require strict confirmation that provided value has been applied (raises `XAirCommitConfirmFailed` otherwise).
             When false, the returned actual value might differ from the provided one.
         """
         raise NotImplementedError()
+
+    @overload
+    def save_scene(self, target_path: None = None) -> dict[str, Any]: ...
+    @overload
+    def save_scene(self, target_path: Path | str) -> None: ...
+    def save_scene(self, target_path: Path | str | None = None):
+        with (Path(__file__).parent / "scene_address_list.txt").open(encoding="utf-8") as addresses_file:
+            addresses = addresses_file.read().splitlines()
+        values: dict[str, Any] = {}
+        for address in addresses:
+            values[address] = self.read(address)
+        if target_path is None:
+            return values
+        else:
+            import yaml
+
+            with Path(target_path).open("w", encoding="utf-8") as target_file:
+                yaml.safe_dump(values, target_file, sort_keys=False)
+
+    @staticmethod
+    def read_scene_file(scene: Path | str) -> dict[str, Any]:
+        import yaml
+
+        with Path(scene).open(encoding="utf-8") as scene_file:
+            return yaml.safe_load(scene_file)
+
+    def load_scene(self, scene: Path | str | dict[str, Any], post_values=False):
+        if isinstance(scene, (Path, str)):
+            values = self.read_scene_file(scene)
+        else:
+            values = scene
+
+        for address, value in values.items():
+            if post_values:
+                self.post(address, value)
+            else:
+                self.commit(address, value)
 
 
 class XAirConnection(XAirClient):
@@ -99,7 +142,9 @@ class XAirConnection(XAirClient):
         port: int = 10024,
         timeout: float = 1.0,
         commit_on_write: bool = True,
-        commit_confirm_attempts: int = 5,
+        commit_confirm_timeout: float | None = 10.0,
+        commit_confirm_attempts: int = 20,
+        action_commit_timeout: float = 2.5,
     ):
         if not ip:
             raise ValueError("ip is required")
@@ -110,7 +155,9 @@ class XAirConnection(XAirClient):
         self.port = port
         self.timeout = timeout
         self.commit_on_write = commit_on_write
+        self.commit_confirm_timeout = commit_confirm_timeout or timeout
         self.commit_confirm_attempts = commit_confirm_attempts
+        self.action_commit_timeout = action_commit_timeout
 
         dispatcher = Dispatcher()
         dispatcher.set_default_handler(self._on_message)
@@ -163,7 +210,7 @@ class XAirConnection(XAirClient):
         self._server.shutdown()
 
     @override
-    def read(self, address: str, values: Any | list[Any] | None = None) -> Any:
+    def read(self, address: str) -> Any:
         address = self._normalize_address(address)
         deadline = time.monotonic() + self.timeout
 
@@ -172,7 +219,7 @@ class XAirConnection(XAirClient):
                 self._expected_path = address
                 self._expected_payload = None
 
-            self._server.send_message(address, values)
+            self._server.send_message(address, None)
 
             with self._response_cv:
                 while self._expected_payload is None:
@@ -189,15 +236,15 @@ class XAirConnection(XAirClient):
         if payload is None:
             raise XAirProtocolError(f"internal error: missing payload for {address}")
         if len(payload) == 0:
-            raise XAirProtocolError(f"empty reply for {address}")
+            raise XAirEmptyReplyError(f"empty reply for {address}")
         if len(payload) == 1:
             return payload[0]
         return payload
 
     @override
-    def write(self, address: str, value: Any):
+    def write(self, address: str, value: Any, *, is_action: bool = False):
         if self.commit_on_write:
-            self.commit(address, value)
+            self.commit(address, value, is_action=is_action)
         else:
             self.post(address, value)
 
@@ -208,10 +255,16 @@ class XAirConnection(XAirClient):
         self._server.send_message(address, value)
 
     @override
-    def commit(self, address: str, value: Any, *, strict_confirm: bool = True):
+    def commit(self, address: str, value: Any, *, strict_confirm: bool = True, is_action: bool = False):
         """Write with confirmation"""
         address = self._normalize_address(address)
         self._server.send_message(address, value)
+
+        if is_action:
+            self.read(address)
+            time.sleep(self.action_commit_timeout)
+            self.read(address)
+            return None
 
         # This is a polling strategy.
         # It is quite reliable, most writes will be available on first or second read.
@@ -226,26 +279,38 @@ class XAirConnection(XAirClient):
         # - Subscription. Doesn't solve the first problem, complex impl, not necessary less load on the system.
         #   Less chances of race condition, but still may theoretically drop some data.
 
-        deadline = time.monotonic() + self.timeout
+        deadline = time.monotonic() + self.commit_confirm_timeout
 
         actual = None
-        micro_timeout = 0.005
+        timeout = 0.010
         assert self.commit_confirm_attempts > 0
         for attempt in range(0, self.commit_confirm_attempts):
-            actual = self.read(address)
-            if _value_equal(value, actual):
-                return actual
+            try:
+                actual = self.read(address)
+                if _value_equal(value, actual):
+                    return actual
+
+            except XAirEmptyReplyError as ex:
+                if actual is None:
+                    actual = ex
 
             remaining = deadline - time.monotonic()
-            if remaining <= micro_timeout:
+            if remaining <= timeout:
                 break
 
             # this should be rare
             if attempt >= 1:
-                time.sleep(micro_timeout)
+                time.sleep(timeout)
+                timeout *= 2
+
+        error = actual if isinstance(actual, Exception) else None
 
         if strict_confirm:
-            raise XAirCommitConfirmFailed(f"Could not confirm value write to '{address}'", actual_value=actual)
+            raise XAirCommitConfirmFailed(
+                f"Could not confirm value write to '{address}'", actual_value=actual
+            ) from error
+        elif error:
+            raise error
         else:
             return actual
 
@@ -293,6 +358,8 @@ def _value_equal(expected: Any, actual: Any):
     if isinstance(expected, (str, int)):
         return expected == actual
     elif isinstance(expected, float):
+        if math.isnan(expected) and math.isnan(actual):
+            return True
         return abs(expected - actual) < 1e-5
 
     raise NotImplementedError(f"Type {type(expected)} is not supported as x-air protocol value.")
