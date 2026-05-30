@@ -28,11 +28,6 @@ class MixerNode:
     description: str | None = None
     property_descriptions: frozendict[str, str] = frozendict()
 
-    # TODO: should allow no inconsistencies,
-    # probably moved to the context, because it propagates to the children
-    disabled: bool = False
-    disabled_children_names: frozenset[str] = frozenset()
-
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
         if cls.description is None:
@@ -59,6 +54,8 @@ class MixerNode:
             base_address = base_address[:-1]
         self.base_address = base_address
         self.context = context
+        self.disabled_properties: frozenset[str] = frozenset()
+
         if description is not None:
             self.description = description
 
@@ -87,15 +84,15 @@ class MixerNode:
             all_items.update(cls.__dict__)
 
         for attr_name, member in all_items.items():
-            if attr_name in self.disabled_children_names or attr_name.startswith("_"):
+            if attr_name.startswith("_"):
                 continue
 
             if isinstance(member, MixerNodeFactory):
                 child_node: MixerNode = getattr(self, attr_name)
-                if not child_node.disabled:
-                    yield (attr_name, child_node)
+                yield (attr_name, child_node)
             elif isinstance(member, MixerProperty):
-                yield (attr_name, MixerPropertyNode(self, attr_name, member))
+                if attr_name not in self.disabled_properties:
+                    yield (attr_name, member.make_node(self))
 
     @property
     def descriptor(self):
@@ -130,15 +127,17 @@ class MixerCollectionNode(MixerNode, Generic[N]):
             raise RuntimeError("item_count must be passed to the init or defined by deriving class")
 
         num_range = range(self.item_start, self.item_start + self.item_count)
-        self._num_range = num_range
-        self._names = [self._create_item_name(num) for num in num_range]
+        names = [self._create_item_name(num) for num in num_range]
 
         item_path_start = self.item_path_start if self.item_path_start is not None else self.item_start
         address_segments = [
             f"{num:0{self.item_num_width}d}" for num in range(item_path_start, item_path_start + self.item_count)
         ]
 
-        self._items = [self._create_item(num=num, address_segment=ps) for num, ps in zip(num_range, address_segments)]
+        items = [self._create_item(num=num, address_segment=ps) for num, ps in zip(num_range, address_segments)]
+        self._items = [i for i in items if i is not None]
+        self._nums = tuple(num for i, num in zip(items, num_range) if i is not None)
+        self._names = [name for i, name in zip(items, names) if i is not None]
 
     def _pre_init(self):
         pass
@@ -152,7 +151,7 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     def _create_item_context_factory(self, item_type: type[N], num: int) -> Callable[[MixerNode], frozendict]:
         return lambda _: self._create_item_context(item_type, num)
 
-    def _create_typed_item(self, item_type: type[N], num: int, address_segment: str):
+    def _create_typed_item(self, item_type: type[N], num: int, address_segment: str) -> N | None:
         return MixerNodeFactory(
             self.relative_address(address_segment),
             item_type,
@@ -167,28 +166,20 @@ class MixerCollectionNode(MixerNode, Generic[N]):
 
     def __getitem__(self, num_or_name: int | str) -> N:
         if isinstance(num_or_name, int):
-            num = num_or_name
-            first = self.item_start
-            last = first + len(self._items) - 1
-            if num < self.item_start or num > last:
-                raise IndexError(f"item num must be in range {self.item_start}..{last}")
-
-            return self._items[num - self.item_start]
+            item_idx = self._nums.index(num_or_name)
         else:
             item_idx = self._names.index(num_or_name)
-            return self._items[item_idx]
+        return self._items[item_idx]
 
     def __contains__(self, item):
         return item in self._items
 
     def __iter__(self):
-        assert self.item_count is not None
-        num_range = range(self.item_start, self.item_start + self.item_count)
-        return zip(num_range, self._items)
+        return zip(self._nums, self._items)
 
     @property
-    def item_numbers(self):
-        return self._num_range
+    def item_numbers(self) -> Iterable:
+        return self._nums
 
     @property
     @override
@@ -196,8 +187,6 @@ class MixerCollectionNode(MixerNode, Generic[N]):
         yield from super().children
 
         for name, child in zip(self._names, self._items):
-            if child.disabled or name in self.disabled_children_names:
-                continue
             yield (name, child)
 
 
@@ -277,6 +266,11 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
                 d = dataclasses.replace(d, description=descr_from_parent)
         return d
 
+    def make_node(self, parent: MixerNode):
+        if self.name is None:
+            raise RuntimeError("Descriptor have to belong to a class in order to create a node.")
+        return MixerPropertyNode(parent, self.name, self)
+
     @abstractmethod
     def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
         raise NotImplementedError
@@ -291,7 +285,7 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
         if instance is None:
             return self
         address = self.address_provider(instance)
-        if self.name in instance.disabled_children_names:
+        if self.name in instance.disabled_properties:
             raise RuntimeError(
                 f"Property '{self.name}' is disabled and probably could not be accessed (internal path: '{address}')."
             )
@@ -316,7 +310,7 @@ class MixerProperty(MixerPropertyBase[T], Generic[T]):
         address = self.address_provider(instance)
         if self.rw_mode == MixerPropertyRWMode.ReadOnly:
             raise AttributeError(f"Property '{self.name}' is read-only (osc address: '{address}').")
-        if self.name in instance.disabled_children_names:
+        if self.name in instance.disabled_properties:
             raise RuntimeError(
                 f"Property '{self.name}' is disabled and probably could not be accessed (osc address: '{address}')."
             )
@@ -331,7 +325,7 @@ class MixerPropertyNode:
 
     @property
     def disabled(self):
-        return self.name in self.parent.disabled_children_names
+        return self.name in self.parent.disabled_properties
 
     @property
     def descriptor(self):

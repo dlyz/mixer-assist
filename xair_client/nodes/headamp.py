@@ -47,14 +47,10 @@ class HeadAmps(MixerCollectionNode[HeadAmp | LineHeadAmp]):
 
     @override
     def _create_item(self, num: int, address_segment: str):
-        disable = False
         if num > self.mixer_model.num_headamp:
+            if self.mixer_model.line_inputs_fixed_stereo and num % 2 == 0:
+                return None
             item_type = LineHeadAmp
-            if self.mixer_model.line_inputs_fixed_stereo:
-                disable = num % 2 == 0
         else:
             item_type = HeadAmp
-        result = super()._create_typed_item(item_type, num=num, address_segment=address_segment)
-        if disable:
-            result.disabled = True
-        return result
+        return super()._create_typed_item(item_type, num=num, address_segment=address_segment)

@@ -7,6 +7,7 @@ from .strip_common import (
     StereoInsertFxSlot,
     StripConfig,
     StripDynamics,
+    StripDynamicsBase,
     StripEqBand,
     StripGroups,
     StripInsert,
@@ -173,10 +174,8 @@ class MainLRInsert(BusInsert):
     fx_slot = EnumIntProperty("sel", StereoInsertFxSlot)
 
 
-class MainLRDynamics(StripDynamics):
-    # this is not ideal hack: the property exist in the type, but disabled.
-    # kept as is cause not sure it worth branching class hierarchy
-    disabled_children_names = StripDynamics.disabled_children_names.union(["sidechain_key_source"])
+class MainLRDynamics(StripDynamicsBase):
+    pass
 
 
 class MainLRMix(MixerNode):

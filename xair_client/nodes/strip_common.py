@@ -114,7 +114,7 @@ class DynEnvelope(IntEnum):
     LOG = 1
 
 
-class StripDynamics(MixerNode):
+class StripDynamicsBase(MixerNode):
     # Main.
     enabled = BoolProperty("on")
     mode = EnumIntProperty("mode", DynMode)
@@ -133,10 +133,15 @@ class StripDynamics(MixerNode):
     release_ms = LogFloatProperty("release", 5.0, 4000.0, decimals=0, grid_size=101, units="ms")
 
     # Side chain filter.
-    sidechain_key_source = CodecTypeMixerProperty("keysrc", SidechainKeySource)
+    sidechain_key_source = None
     sidechain_filter_enabled = BoolProperty("filter/on")
     sidechain_filter_type = EnumIntProperty("filter/type", SidechainFilterType)
     sidechain_filter_frequency = LogFloatProperty("filter/f", 20.0, 20000.0, decimals=1, grid_size=101, units="Hz")
+
+
+class StripDynamics(StripDynamicsBase):
+    # Side chain filter.
+    sidechain_key_source = CodecTypeMixerProperty("keysrc", SidechainKeySource)
 
 
 class StripGroups(MixerNode):

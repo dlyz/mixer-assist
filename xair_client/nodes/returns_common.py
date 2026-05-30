@@ -72,9 +72,10 @@ class ReturnStripBusMix(MixerCollectionNode[ReturnStripBusSend]):
     @override
     def _create_item(self, num: int, address_segment: str):
         result = super()._create_item(num=num, address_segment=address_segment)
+        assert result
         # pan exists only on odd buses (works when they are paired)
         if num % 2 == 0:
-            result.disabled_children_names = result.disabled_children_names.union(["pan"])
+            result.disabled_properties = result.disabled_properties.union(["pan"])
         return result
 
 
