@@ -263,8 +263,7 @@ class XAirConnection(XAirClient):
         if is_action:
             self.read(address)
             time.sleep(self.action_commit_timeout)
-            self.read(address)
-            return None
+            return self.read(address)
 
         # This is a polling strategy.
         # It is quite reliable, most writes will be available on first or second read.

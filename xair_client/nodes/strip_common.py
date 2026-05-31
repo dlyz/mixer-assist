@@ -55,6 +55,24 @@ class InsertFxSlot(IntEnum):
     FX4A = 7
     FX4B = 8
 
+    @property
+    def num(self):
+        return -1 if self == InsertFxSlot.OFF else (self.value - 1) // 2 + 1
+
+    @property
+    def side(self):
+        return -1 if self == InsertFxSlot.OFF else (self.value - 1) % 2
+
+    @staticmethod
+    def from_num_side(num: int, side: int):
+        if num == -1:
+            return InsertFxSlot.OFF
+        if not 1 <= num <= 4:
+            raise ValueError(f"{num} fx num is invalid for {InsertFxSlot.__name__}")
+        if not 0 <= side <= 1:
+            raise ValueError(f"{side} fx side is invalid for {InsertFxSlot.__name__}, use 0 for A and 1 for B.")
+        return InsertFxSlot(1 + (num - 1) * 2 + side)
+
 
 class StereoInsertFxSlot(IntEnum):
     OFF = 0

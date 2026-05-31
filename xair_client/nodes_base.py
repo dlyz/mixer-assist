@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import dataclasses
 import enum
-from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar, overload, override
+from typing import Any, Callable, Generic, Iterable, Mapping, Protocol, TypeVar, overload, override
 
 from frozendict import frozendict
 
@@ -98,6 +98,40 @@ class MixerNode:
     def descriptor(self):
         return MixerNodeDescriptor(description=self.description)
 
+    def to_dict(self):
+        result: dict[str, Any] = {}
+        for name, child in self.children:
+            if isinstance(child, MixerPropertyNode):
+                result[name] = child.value
+            else:
+                result[name] = child.to_dict()
+        return result
+
+    def validate_dict(self, values: Mapping[str, Any]):
+        if not isinstance(values, Mapping):
+            raise ValueError(
+                f"Value of type '{type(values)}' is invalid for '{self.__class__}' node. Mapping expected."
+            )
+        children = dict(self.children)
+        for name, value in values.items():
+            child = children.get(name)
+            if child is None:
+                raise ValueError(f"Child '{name}' not found in '{self.__class__}'.")
+            elif isinstance(child, MixerPropertyNode):
+                child.prop.encode(value, child.parent)
+            else:
+                child.validate_dict(value)
+
+    def set_values_from_dict(self, values: Mapping[str, Any]):
+        self.validate_dict(values)
+        for name, child in self.children:
+            if name in values:
+                value = values[name]
+                if isinstance(child, MixerPropertyNode):
+                    child.value = value
+                else:
+                    child.set_values_from_dict(value)
+
 
 N = TypeVar("N", bound="MixerNode")
 
@@ -178,7 +212,7 @@ class MixerCollectionNode(MixerNode, Generic[N]):
         return zip(self._nums, self._items)
 
     @property
-    def item_numbers(self) -> Iterable:
+    def item_numbers(self) -> Iterable[int]:
         return self._nums
 
     @property

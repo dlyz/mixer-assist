@@ -283,6 +283,9 @@ class FloatProperty(MixerProperty[float]):
     def encode(self, value: float, instance: MixerNode) -> float:
         numeric_value = float(value)
 
+        if math.isclose(numeric_value, self.minimum) or math.isclose(numeric_value, self.maximum):
+            numeric_value = max(self.minimum, min(self.maximum, numeric_value))
+
         if not self.minimum <= numeric_value <= self.maximum:
             raise ValueError(f"{self.name} must be in range {self.minimum}..{self.maximum}, got {numeric_value}")
         result = self._do_encode(numeric_value)
