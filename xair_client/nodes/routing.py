@@ -2,8 +2,8 @@ from enum import IntEnum
 
 from typing import override
 
-from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
-from ..properties.primitive import EnumIntProperty
+from .core.base_types import MixerCollectionNode, MixerNode, MixerNodeFactory
+from .core.primitive_props import EnumIntProperty
 
 
 # TODO: constraints on enum values depending on the mixer model

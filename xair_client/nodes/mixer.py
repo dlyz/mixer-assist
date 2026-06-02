@@ -1,19 +1,21 @@
 from typing import override
 
-from .snapshots import Snapshots
+from .bus_strips.main_lr import MainLR
 
-from ..properties.primitive import BoolProperty
+from .snapshots.snapshots import Snapshots
+
+from .core.primitive_props import BoolProperty
 
 from ..client import XAirClient
-from ..nodes_base import MixerNode, MixerNodeFactory, MixerCollectionNode
-from .buses import Buses, MainLR
+from .core.base_types import MixerNode, MixerNodeFactory, MixerCollectionNode
+from .bus_strips.buses import Buses
 from .dca import Dcas
-from .channels import Channels
-from .fx_sends import FxSends
+from .channel_strips.channels import Channels
+from .bus_strips.fx_sends import FxSends
 from .headamp import HeadAmps
 from .routing import Routing
-from .returns import AuxReturn, FxReturns
-from .fx import Fxes
+from .channel_strips.returns import AuxReturn, FxReturns
+from .fxes.fxes import Fxes
 
 
 class MixerMuteGroup(MixerNode):
@@ -54,26 +56,35 @@ class MixerConfig(MixerNode):
 
 class Mixer(MixerNode):
     headamps = MixerNodeFactory("headamp", HeadAmps)
+
     channels = MixerNodeFactory("ch", Channels)
-    fx_returns = MixerNodeFactory("rtn", FxReturns)
     aux_return = MixerNodeFactory("rtn/aux", AuxReturn)
+    fx_returns = MixerNodeFactory("rtn", FxReturns)
+
     buses = MixerNodeFactory("bus", Buses)
     fx_sends = MixerNodeFactory("fxsend", FxSends)
     main_lr = MixerNodeFactory("lr", MainLR)
 
-    fx = MixerNodeFactory("fx", Fxes)
+    fxes = MixerNodeFactory("fx", Fxes)
     dcas = MixerNodeFactory("dca", Dcas)
     mute_groups = MixerNodeFactory("config/mute", MixerMuteGroups)
     routing = MixerNodeFactory("routing", Routing)
     config = MixerNodeFactory("config", MixerConfig)
     snapshots = MixerNodeFactory("-snap", Snapshots)
 
-    def get_all_feeds(self):
+    def all_channel_strips(self):
         for _, c in self.channels:
             yield c
         yield self.aux_return
         for _, c in self.fx_returns:
             yield c
+
+    def all_bus_strips(self):
+        for _, c in self.buses:
+            yield c
+        for _, c in self.fx_sends:
+            yield c
+        yield self.main_lr
 
     def __init__(self, client: XAirClient):
         super().__init__(client, "/", description=f"{client.mixer_model.name} mixer parameter tree.")

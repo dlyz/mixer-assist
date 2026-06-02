@@ -1,0 +1,375 @@
+import abc
+import math
+from enum import IntEnum
+from typing import Any, TypeVar, override
+
+from ...attribure_docs import get_class_attribute_docs
+from .base_types import MixerNode, MixerPropDescriptor, MixerProperty, MixerPropertyAddressLike, MixerPropertyRWMode
+
+
+class IntProperty(MixerProperty[int]):
+    def __init__(
+        self,
+        address_segment: MixerPropertyAddressLike,
+        minimum: int,
+        maximum: int,
+        *,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
+        units: str | None = None,
+        extra_constraints: str = "",
+        description: str | None = None,
+    ):
+        if minimum > maximum:
+            raise ValueError(f"minimum must be less or equal than maximum, got {minimum} > {maximum}")
+        super().__init__(address_segment, rw_mode=rw_mode)
+        self.minimum = minimum
+        self.maximum = maximum
+        self.descriptor = MixerPropDescriptor(
+            type="float",
+            units=units,
+            constraints=self.make_range_constraints(minimum, maximum) + extra_constraints,
+            description=description,
+        )
+
+    @override
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        return self.descriptor
+
+    @override
+    def parse(self, value: str) -> int:
+        return int(value.strip())
+
+    @override
+    def format_value(self, value: int) -> str:
+        return str(value)
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> int:
+        return int(raw)
+
+    @override
+    def encode(self, value: int, instance: MixerNode) -> int:
+        if not self.minimum <= value <= self.maximum:
+            raise ValueError(f"{self.name} must be in range {self.minimum}..{self.maximum}, got {value}")
+        return value
+
+    @staticmethod
+    def make_range_constraints(minimum: int, maximum: int):
+        return f"in range [{minimum}, {maximum}]"
+
+
+class StringProperty(MixerProperty[str]):
+    def __init__(
+        self,
+        address_segment: MixerPropertyAddressLike,
+        max_len: int,
+        *,
+        min_len: int = 0,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
+        description: str | None = None,
+    ):
+        super().__init__(address_segment, rw_mode=rw_mode)
+        self.min_len = min_len
+        self.max_len = max_len
+        self.descriptor = MixerPropDescriptor(
+            type="str",
+            constraints=f"len in range [{min_len}, {max_len}]",
+            description=description,
+        )
+
+    @override
+    def _make_own_node_descriptor(self, parent: MixerNode):
+        return self.descriptor
+
+    def _validate_value(self, value: str):
+        if not self.min_len <= len(value) <= self.max_len:
+            raise ValueError(f"{self.name} length must be in range {self.min_len}..{self.max_len}, got {len(value)}")
+
+    @override
+    def parse(self, value: str) -> str:
+        self._validate_value(value)
+        return value
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> str:
+        value = str(raw)
+        self._validate_value(value)
+        return value
+
+    @override
+    def encode(self, value: str, instance: MixerNode) -> Any:
+        self._validate_value(value)
+        return value
+
+
+class BoolProperty(MixerProperty[bool]):
+    def __init__(
+        self,
+        address_segment: MixerPropertyAddressLike,
+        *,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
+        description: str | None = None,
+    ):
+        super().__init__(address_segment, rw_mode=rw_mode)
+        self.descriptor = MixerPropDescriptor(
+            type="bool",
+            description=description,
+        )
+
+    @override
+    def _make_own_node_descriptor(self, parent: MixerNode):
+        return self.descriptor
+
+    @override
+    def parse(self, value: str) -> bool:
+        text = value.strip().lower()
+        if text in {"1", "true", "on", "yes"}:
+            return True
+        if text in {"0", "false", "off", "no"}:
+            return False
+        raise ValueError(f"invalid boolean value {value!r}")
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> bool:
+        return bool(int(raw))
+
+    @override
+    def encode(self, value: bool, instance: MixerNode) -> int:
+        return 1 if value else 0
+
+
+class InvertedBoolProperty(BoolProperty):
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> bool:
+        return not bool(int(raw))
+
+    @override
+    def encode(self, value: bool, instance: MixerNode) -> int:
+        return 0 if value else 1
+
+
+E = TypeVar("E", bound=IntEnum)
+
+
+class EnumIntProperty(MixerProperty[E]):
+    def __init__(
+        self,
+        address_segment: MixerPropertyAddressLike,
+        enum_type: type[E],
+        *,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
+        description: str | None = None,
+    ):
+        super().__init__(address_segment, rw_mode=rw_mode)
+        self.enum_type = enum_type
+
+        if hasattr(enum_type, "_LABELS"):
+            self.labels: dict[E, str] | None = getattr(enum_type, "_LABELS")
+            if not isinstance(self.labels, dict):
+                raise ValueError("_LABELS property of the enum class must be a dict[enum_type, str]")
+            self.casefold_name_to_value = {label.casefold(): value for value, label in self.labels.items()}
+        else:
+            self.labels = None
+            self.casefold_name_to_value = {member.name.casefold(): member for member in self.enum_type}
+
+        enum_member_docs = get_class_attribute_docs(self.enum_type)
+        enum_names_with_doc = [
+            (self.format_value(member), enum_member_docs.get(member.name)) for member in self.enum_type
+        ]
+
+        enum_names = ", ".join(name for name, _ in enum_names_with_doc)
+
+        enum_values_description = None
+        if any(doc for _, doc in enum_names_with_doc):
+            enum_values_description = "Values:\n" + "\n".join(
+                (f"  {name}: {'\n    '.join(doc.strip().splitlines())}" if doc else f"  {name}")
+                for name, doc in enum_names_with_doc
+            )
+
+        if not description and enum_type.__doc__:
+            description = enum_type.__doc__.strip()
+
+        if not description:
+            description = enum_values_description
+        elif enum_values_description:
+            description = description + "\n" + enum_values_description
+
+        self.descriptor = MixerPropDescriptor(
+            type="enum",
+            constraints=f"one of: {enum_names}",
+            description=description,
+        )
+
+    @override
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        return self.descriptor
+
+    @override
+    def format_value(self, value: E) -> str:
+        if self.labels is not None:
+            return self.labels[value]
+        else:
+            return value.name
+
+    @override
+    def parse(self, value: str) -> E:
+        text = value.strip()
+        member = self.casefold_name_to_value.get(text.casefold())
+        if member is None:
+            raise ValueError(f"invalid enum value {value!r}, expected {self.descriptor.constraints}")
+        return member
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> E:
+        return self.enum_type(int(raw))
+
+    @override
+    def encode(self, value: E, instance: MixerNode) -> int:
+        return int(value)
+
+
+class FloatProperty(MixerProperty[float]):
+    def __init__(
+        self,
+        address_segment: MixerPropertyAddressLike,
+        minimum: float,
+        maximum: float,
+        *,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
+        decimals: int | None = None,
+        grid_size: int | None = None,
+        units: str | None = None,
+        extra_constraints: str = "",
+        description: str | None = None,
+    ):
+        if minimum >= maximum:
+            raise ValueError(f"minimum must be less than maximum, got {minimum} >= {maximum}")
+        super().__init__(address_segment, rw_mode=rw_mode)
+        self.minimum = minimum
+        self.maximum = maximum
+        self.decimals = decimals
+        self.grid_size = grid_size
+        self.descriptor = MixerPropDescriptor(
+            type="float",
+            units=units,
+            constraints=self.make_range_constraints(minimum, maximum, decimals=decimals) + extra_constraints,
+            description=description,
+        )
+
+    @override
+    def _make_own_node_descriptor(self, parent: MixerNode) -> MixerPropDescriptor:
+        return self.descriptor
+
+    @override
+    def parse(self, value: str) -> float:
+        return float(value.strip())
+
+    @override
+    def format_value(self, value: float) -> str:
+        return format(value, f".{self.decimals}f")
+
+    @override
+    def decode(self, raw: Any, instance: MixerNode) -> float:
+        raw_value = float(raw)
+        if not 0.0 <= raw_value <= 1.0:
+            raise ValueError(f"{self.name} raw value must be in range 0.0..1.0, got {raw_value}")
+        return self._do_decode(raw_value)
+
+    @abc.abstractmethod
+    def _do_decode(self, raw_value: float) -> float:
+        raise NotImplementedError()
+
+    @override
+    def encode(self, value: float, instance: MixerNode) -> float:
+        numeric_value = float(value)
+
+        if math.isclose(numeric_value, self.minimum) or math.isclose(numeric_value, self.maximum):
+            numeric_value = max(self.minimum, min(self.maximum, numeric_value))
+
+        if not self.minimum <= numeric_value <= self.maximum:
+            raise ValueError(f"{self.name} must be in range {self.minimum}..{self.maximum}, got {numeric_value}")
+        result = self._do_encode(numeric_value)
+        if self.grid_size is not None:
+            result = snap_to_grid(result, self.grid_size)
+        return result
+
+    @abc.abstractmethod
+    def _do_encode(self, value: float) -> float:
+        raise NotImplementedError()
+
+    @staticmethod
+    def make_range_constraints(minimum: float, maximum: float, decimals: int | None = None):
+        if decimals is not None:
+            return f"in range [{minimum:.{decimals}f}, {maximum:.{decimals}f}]"
+        else:
+            return f"in range [{minimum}, {maximum}]"
+
+
+def snap_to_grid(osc_float: float, step_count: int) -> float:
+    # Protect bounds
+    osc_float = max(0.0, min(1.0, osc_float))
+
+    # Calculate the max index (e.g., a 101-step grid has indices from 0 to 100)
+    max_index = step_count - 1
+
+    # Find the nearest integer step index
+    nearest_step = round(osc_float * max_index)
+
+    # Convert it back to the exact grid float the mixer will echo
+    return nearest_step / max_index
+
+
+class LinearFloatProperty(FloatProperty):
+    @override
+    def _do_decode(self, raw_value: float) -> float:
+        return self.minimum + (self.maximum - self.minimum) * raw_value
+
+    @override
+    def _do_encode(self, value: float) -> float:
+        return (value - self.minimum) / (self.maximum - self.minimum)
+
+
+class LogFloatProperty(FloatProperty):
+    def __init__(
+        self,
+        address_segment: MixerPropertyAddressLike,
+        minimum: float,
+        maximum: float,
+        *,
+        rw_mode: MixerPropertyRWMode = MixerPropertyRWMode.ReadWrite,
+        decimals: int | None = None,
+        grid_size: int | None = None,
+        units: str | None = None,
+        description: str | None = None,
+    ):
+        if minimum <= 0 or maximum <= 0:
+            raise ValueError(f"log range values must be positive, got {minimum}..{maximum}")
+        super().__init__(
+            address_segment,
+            minimum,
+            maximum,
+            rw_mode=rw_mode,
+            decimals=decimals,
+            grid_size=grid_size,
+            units=units,
+            description=description,
+        )
+        self._scale = math.log(self.maximum / self.minimum)
+
+    @override
+    def _do_decode(self, raw_value: float) -> float:
+        return self.minimum * math.exp(self._scale * raw_value)
+
+    @override
+    def _do_encode(self, value: float) -> float:
+        return math.log(value / self.minimum) / self._scale
+
+
+class InvertedLogFloatProperty(LogFloatProperty):
+    @override
+    def _do_decode(self, raw_value: float) -> float:
+        return self.minimum * math.exp(self._scale * (1.0 - raw_value))
+
+    @override
+    def _do_encode(self, value: float) -> float:
+        return 1.0 - (math.log(value / self.minimum) / self._scale)

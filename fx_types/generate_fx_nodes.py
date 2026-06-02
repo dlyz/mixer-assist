@@ -4,6 +4,7 @@ import argparse
 import keyword
 import re
 from pathlib import Path
+import textwrap
 
 from fx_js_parser import (
     FxBooleanParameter,
@@ -17,7 +18,7 @@ from fx_js_parser import (
 
 ROOT = Path(__file__).resolve().parents[1]
 TYPE_FOLDER = Path(__file__).resolve().parent / "types"
-OUTPUT_FOLDER = ROOT / "xair_client" / "nodes" / "effects"
+OUTPUT_FOLDER = ROOT / "xair_client" / "nodes" / "fxes" / "effects"
 
 
 def _split_words(text: str) -> list[str]:
@@ -139,16 +140,24 @@ def render_parameter(parameter: FxParameter, enum_name: str | None = None, digit
 
 def render_fx_file(spec: FxTypeFile) -> tuple[str, str]:
     class_name = f"{to_pascal(spec.name)}FxParams"
-    lines: list[str] = [
-        "# This file is auto-generated with generate_fx_nodes.py. Do not edit manually.",
-        "",
-        "import enum",
-        "from enum import IntEnum",
-        "",
-        "from ...nodes_base import MixerNode",
-        "from ...properties.primitive import BoolProperty, EnumIntProperty, InvertedBoolProperty, LinearFloatProperty, LogFloatProperty",
-        "",
-    ]
+    lines: list[str] = textwrap.dedent(
+        """\
+        # This file is auto-generated with generate_fx_nodes.py. Do not edit manually.
+
+        import enum
+        from enum import IntEnum
+
+        from ...core.base_types import MixerNode
+        from ...core.primitive_props import (
+            BoolProperty,
+            EnumIntProperty,
+            InvertedBoolProperty,
+            LinearFloatProperty,
+            LogFloatProperty,
+        )
+
+        """
+    ).splitlines()
 
     select_parameters = [p for p in spec.parameters if isinstance(p, FxSelectParameter)]
     enum_names: dict[int, str] = {}

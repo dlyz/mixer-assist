@@ -52,6 +52,86 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 - Some descriptions may be inaccurate or inadequately precise for LLMs.
 - At this stage, API is a subject to change.
 
+## Mixer Architecture
+
+### Strip
+
+A **strip** is the fundamental mixer element.
+
+Every strip represents a signal-processing path with a common set of properties such as:
+
+- Name, color
+- Mute
+- Fader level
+- Routing controls
+- DSP blocks (where supported by the hardware)
+
+All mixer elements derive from the Strip concept.
+
+### Channel Strips
+
+A **channel strip** is a strip that introduces a signal into the mixing engine and can distribute that signal to one or more buses through sends.
+
+Channel strips are signal-producing paths rather than summing paths.
+
+The following mixer elements are modeled as channel strips:
+
+- Channels (mono)
+- Aux Returns (stereo)
+- FX Returns (stereo)
+
+Although Aux Returns may be used for external inputs, they are labeled as a "return" because their processing behavior is much closer to FX Returns than to Channels.
+
+### Bus Strips
+
+A **bus strip** is a strip whose primary purpose is to collect and combine signals from multiple channel strips.
+
+Bus strips are summing paths rather than signal-producing paths.
+
+The following mixer elements are modeled as bus strips:
+
+- Buses (mono, could be linked in stereo pairs)
+- FX Sends (mono)
+- Main LR (stereo)
+
+### Mix sends
+
+A **mix send** is a routing relationship between a channel strip and a bus strip.
+Each send defines how much signal from a specific channel strip is contributed to a specific bus strip.
+
+```text
+Channel Strip 1 ──┐
+Channel Strip 2 ──┼──► Bus Strip
+Channel Strip 3 ──┘
+```
+
+Typical mix send parameters include:
+
+- Level (fader)
+- Mute
+- Tap point (pre/post fader, where supported)
+
+### Routing
+
+Routing is separate from mixing.
+While mix sends determine how signals are mixed in a path from channel strips to bus strips,
+routing determines where signals originate and where they are delivered in those channel and bus strips.
+
+- Channel strip signal sources (Ins) are configured in strips config, and strips preamp sections.
+  One source could be routed to multiple channel strips.
+  Possible sources:
+  - Physical mixer input.
+  - USB Return (USB in).
+  - FX Return (fixed for fx return channel strips).
+- All strip physical destinations (Outs) are configured in mixer's routing section.
+  One strip could be routed to multiple destinations.
+  Possible destinations:
+  - Physical aux out (usually bound to buses, but can be bound to arbitrary source: channel or bus strips or even USB returns).
+  - USB Send (USB out).
+  - Ultranet out.
+  - Main out (physical stereo)
+  - Phones out (physical stereo out for monitoring)
+
 ## Acknowledgements
 
 - [xair-api-python](https://github.com/onyx-and-iris/xair-api-python) for implementations insights.
@@ -59,13 +139,12 @@ You can navigate the parameter tree (common path syntax works, like absolute pat
 
 ## TODO
 
-- Make terminology more consistent and compliant with industry.
-  - Decide how to name feeding channels, collecting channels (buses), how to name all channels, how to avoid confusion with existing x-air terminology.
-    Reorganize code accordingly.
-  - Describe snapshot recall scope elements.
+- Fix node and property description according to new terminology.
+- Describe snapshot recall scope elements.
 - Channel insert fx slots may conflict with each other. M Air checks for that. Maybe move insert props to the fx.
 - RTA and meters
 - Add installation steps to readme with UV.
+
 
 ## Useful resources
 

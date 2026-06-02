@@ -1,8 +1,8 @@
 from typing import override
 
-from ..properties.primitive import BoolProperty, LinearFloatProperty
+from .core.primitive_props import BoolProperty, LinearFloatProperty
 
-from ..nodes_base import MixerCollectionNode, MixerNode
+from .core.base_types import MixerCollectionNode, MixerNode
 
 
 class HeadAmp(MixerNode):

@@ -1,7 +1,7 @@
 import time
 from typing import Callable
 
-from .nodes_base import MixerCollectionNode, MixerNode, MixerPropertyNode, MixerPropertyRWMode
+from .nodes.core.base_types import MixerCollectionNode, MixerNode, MixerPropertyNode, MixerPropertyRWMode
 
 from .nodes.mixer import Mixer
 

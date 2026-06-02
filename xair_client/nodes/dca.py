@@ -1,10 +1,10 @@
 from typing import override
 
-from ..properties.fader_pan import MainFaderProperty
+from .strips.mix import HifiFaderProperty
 
-from ..nodes_base import MixerCollectionNode, MixerNode, MixerNodeFactory
-from ..properties.primitive import InvertedBoolProperty
-from .strip_common import StripConfig
+from .core.base_types import MixerCollectionNode, MixerNode, MixerNodeFactory
+from .core.primitive_props import InvertedBoolProperty
+from .strips.config import StripConfig
 
 
 class DcaConfig(StripConfig):
@@ -16,7 +16,7 @@ class Dca(MixerNode):
 
     config = MixerNodeFactory("config", DcaConfig)
     mute = InvertedBoolProperty("on")
-    fader = MainFaderProperty("fader")
+    fader = HifiFaderProperty("fader")
 
 
 class Dcas(MixerCollectionNode[Dca]):

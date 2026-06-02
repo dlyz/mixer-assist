@@ -75,8 +75,11 @@
 		}
 	],
 	"cSpell.words": [
+		"fxes",
 		"headamp",
-		"Sidechain"
+		"headamps",
+		"Sidechain",
+		"ultranet"
 	],
 	"python.testing.unittestEnabled": false,
 	"python.testing.pytestEnabled": true,

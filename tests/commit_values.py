@@ -4,13 +4,16 @@ from pathlib import Path
 import random
 from typing import Callable
 import argparse
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from xair_client.client import XAirCommitConfirmFailed, XAirConnection
-from xair_client.nodes.effects.all import FxType
-from xair_client.nodes_base import MixerNode, MixerProperty, MixerPropertyNode
-from xair_client.properties.primitive import BoolProperty, FloatProperty
+from xair_client.nodes.fxes.effects.all import FxType
+from xair_client.nodes.core.base_types import MixerNode, MixerProperty, MixerPropertyNode
+from xair_client.nodes.core.primitive_props import BoolProperty, FloatProperty
 from xair_client.nodes.mixer import Mixer
-from xair_client.properties.sources import AnalogSourceProperty
+from xair_client.nodes.channel_strips.sources import AnalogSourceProperty
 
 from dotenv import load_dotenv
 
@@ -130,8 +133,8 @@ def main():
                 grid_deductions.clear()
                 print(type, type.name)
 
-                mixer.fx[1].effect_type = type
-                traverse_props("/fx/1/effect_params", mixer.fx[1].effect_params, test)
+                mixer.fxes[1].effect_type = type
+                traverse_props("/fx/1/effect_params", mixer.fxes[1].effect_params, test)
 
                 if fix_fx_params and grid_deductions:
                     import yaml

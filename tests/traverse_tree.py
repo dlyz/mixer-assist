@@ -1,7 +1,10 @@
 import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from xair_client.client import XAirConnection
-from xair_client.nodes_base import MixerNode, MixerPropertyNode
+from xair_client.nodes.core.base_types import MixerNode, MixerPropertyNode
 from xair_client.text_tree_service import MixerTextTreeService
 from xair_client.nodes.mixer import Mixer
 

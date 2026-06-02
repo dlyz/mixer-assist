@@ -1,0 +1,30 @@
+# This file is auto-generated with generate_fx_nodes.py. Do not edit manually.
+
+import enum
+from enum import IntEnum
+
+from ...core.base_types import MixerNode
+from ...core.primitive_props import (
+    BoolProperty,
+    EnumIntProperty,
+    InvertedBoolProperty,
+    LinearFloatProperty,
+    LogFloatProperty,
+)
+
+class PlateReverbFxParams(MixerNode):
+    description = 'Plate Reverb effect parameters (Reverb category).'
+
+    pre_delay = LinearFloatProperty("01", 0.0, 200.0, decimals=0, grid_size=101, units='ms')
+    decay = LogFloatProperty("02", 0.5, 10.0, decimals=2, grid_size=51, units='ms')
+    size = LinearFloatProperty("03", 2.0, 100.0, decimals=0, grid_size=50)
+    damp = LogFloatProperty("04", 1000.0, 20000.0, decimals=0, grid_size=25, units='Hz')
+    diffuse = LinearFloatProperty("05", 1.0, 30.0, decimals=0, grid_size=30)
+    level = LinearFloatProperty("06", -12.0, 12.0, decimals=1, grid_size=49, units='dB')
+    low_cut = LogFloatProperty("07", 10.0, 500.0, decimals=0, grid_size=51, units='Hz')
+    high_cut = LogFloatProperty("08", 200.0, 20000.0, decimals=0, grid_size=51, units='Hz')
+    bass_multiplier = LogFloatProperty("09", 0.5, 2.0, decimals=2, grid_size=51)
+    x_over = LogFloatProperty("10", 10.0, 500.0, decimals=0, grid_size=51, units='Hz')
+    modulation_depth = LinearFloatProperty("11", 1.0, 50.0, decimals=0, grid_size=50)
+    modulation_speed = LinearFloatProperty("12", 0.0, 100.0, decimals=0, grid_size=21)
+

@@ -8,8 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from xair_client.client import XAirConnection
 from xair_client.nodes.mixer import Mixer
-from xair_client.nodes.snapshots import Snapshots, SNAPSHOT_SLOTS_COUNT
-from xair_client.nodes_base import MixerNode
+from xair_client.nodes.snapshots.snapshots import Snapshots, SNAPSHOT_SLOTS_COUNT
+from xair_client.nodes.core.base_types import MixerNode
 from xair_client.text_tree_service import MixerTextTreeService
 
 logger = logging.getLogger(__name__)

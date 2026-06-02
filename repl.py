@@ -14,7 +14,7 @@ from prompt_toolkit.formatted_text import HTML
 from xair_client.client import XAirConnection
 from xair_client.nodes.mixer import Mixer
 from xair_client.text_tree_service import MixerTextTreeService
-from xair_client.nodes_base import MixerPropertyNode
+from xair_client.nodes.core.base_types import MixerPropertyNode
 
 logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO").upper())
 xair_log_level = os.environ.get("LOG_LEVEL_XAIR")
