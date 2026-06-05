@@ -133,7 +133,8 @@ class MixerNode:
                     child.set_values_from_dict(value)
 
 
-N = TypeVar("N", bound="MixerNode")
+N = TypeVar("N", bound="MixerNode", covariant=True)
+NInternal = TypeVar("NInternal", bound="MixerNode")
 
 
 class MixerCollectionNode(MixerNode, Generic[N]):
@@ -179,13 +180,13 @@ class MixerCollectionNode(MixerNode, Generic[N]):
     def _create_item_name(self, num: int):
         return f"{num:0{self.item_num_width}d}"
 
-    def _create_item_context(self, item_type: type[N], num: int):
+    def _create_item_context(self, item_type: type[NInternal], num: int):
         return self.context.set(f"{item_type.__name__}_num", num)
 
-    def _create_item_context_factory(self, item_type: type[N], num: int) -> Callable[[MixerNode], frozendict]:
+    def _create_item_context_factory(self, item_type: type[NInternal], num: int) -> Callable[[MixerNode], frozendict]:
         return lambda _: self._create_item_context(item_type, num)
 
-    def _create_typed_item(self, item_type: type[N], num: int, address_segment: str) -> N | None:
+    def _create_typed_item(self, item_type: type[NInternal], num: int, address_segment: str) -> NInternal | None:
         return MixerNodeFactory(
             self.relative_address(address_segment),
             item_type,
