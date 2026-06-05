@@ -79,7 +79,8 @@
 		"headamp",
 		"headamps",
 		"Sidechain",
-		"ultranet"
+		"ultranet",
+		"xair"
 	],
 	"python.testing.unittestEnabled": false,
 	"python.testing.pytestEnabled": true,

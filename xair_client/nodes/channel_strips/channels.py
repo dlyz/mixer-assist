@@ -36,7 +36,7 @@ def get_channel_stereo_link_path(parent: MixerNode):
 
 
 class ChannelConfig(StripConfig):
-    """Channel name and color, as well as selected source for the channel (one of analog inputs or usb returns), and stereo-link switch."""
+    """Channel name and color, as well as selected source for the channel (one of physical analog inputs or usb returns), and stereo-link switch."""
 
     stereo_link = BoolProperty(get_channel_stereo_link_path)
     """
@@ -47,23 +47,23 @@ class ChannelConfig(StripConfig):
     """
 
     analog_source = AnalogSourceProperty("insrc")
-    "Id of analog source (input). 0 to disable. To be effective requires use_usb_input to be false in channel's preamp. Gain is in mixer's headamp section."
+    "Id of physical analog source (input). 0 to disable. To be effective requires `use_usb_input` to be false in channel's preamp. Gain is in mixer's `headamps` section."
 
     usb_source = UsbSourceProperty("rtnsrc")
-    "Id of usb source. To be effective requires use_usb_input to be true in channel's preamp, and the gain (trim) for usb source is there too."
+    "Id of usb source. To be effective requires `use_usb_input` to be true in channel's `preamp` section, and the gain (trim) for usb source is there too."
 
 
 class ChannelPreamp(MixerNode):
     """
     Analog/Usb source switch, usb trim level, low cut and input phase inverter settings.
-    The analog source (input) gain is available in mixer's headamps section.
+    The physical analog source (input) gain is available in mixer's `headamps` section (for the source selected in channel's `config` section).
     """
 
     use_usb_input = BoolProperty("rtnsw")
-    "True if the channel will receive signal from usb return, false - if from analog input. The exact input is set in channel's config section."
+    "True if the channel will receive signal from usb return, false - if from analog input. The exact input is set in channel's `config` section."
 
     usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, grid_size=145, units="dB")
-    "Usable only if use_usb_input is true."
+    "Usable only if `use_usb_input` is true."
 
     invert_phase = BoolProperty("invert")
 
@@ -96,8 +96,7 @@ class Channel(MixerNode):
 
 class Channels(MixerCollectionNode[Channel]):
     """
-    Mixer channel settings.
-    Each channel contains its own send levels and tap settings for every bus and FX send — this is the canonical place to configure the full monitor and effects mix, not the bus or FX send strips themselves.
+    Each channel contains its own send levels and tap settings for every Bus and FX Send — this is the canonical place to configure the full monitor and effects mix.
     """
 
     item_type = Channel

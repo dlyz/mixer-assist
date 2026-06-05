@@ -70,9 +70,7 @@ All mixer elements derive from the Strip concept.
 
 ### Channel Strips
 
-A **channel strip** is a strip that introduces a signal into the mixing engine and can distribute that signal to one or more buses through sends.
-
-Channel strips are signal-producing paths rather than summing paths.
+A **channel strip** is a strip that introduces a signal into the mixing engine and can distribute that signal to one or more buses through sends. Channel strips are signal-producing paths.
 
 The following mixer elements are modeled as channel strips:
 
@@ -84,9 +82,7 @@ Although Aux Returns may be used for external inputs, they are labeled as a "ret
 
 ### Bus Strips
 
-A **bus strip** is a strip whose primary purpose is to collect and combine signals from multiple channel strips.
-
-Bus strips are summing paths rather than signal-producing paths.
+A **bus strip** is a strip whose primary purpose is to collect and combine signals from multiple channel strips. Bus strips are summing paths.
 
 The following mixer elements are modeled as bus strips:
 
@@ -120,17 +116,17 @@ routing determines where signals originate and where they are delivered in those
 - Channel strip signal sources (Ins) are configured in strips config, and strips preamp sections.
   One source could be routed to multiple channel strips.
   Possible sources:
-  - Physical mixer input.
-  - USB Return (USB in).
-  - FX Return (fixed for fx return channel strips).
+  - Analog physical input (mono).
+  - USB Return (USB in, mono).
+  - FX Return (stereo, fixed for fx return channel strips).
 - All strip physical destinations (Outs) are configured in mixer's routing section.
   One strip could be routed to multiple destinations.
   Possible destinations:
-  - Physical aux out (usually bound to buses, but can be bound to arbitrary source: channel or bus strips or even USB returns).
-  - USB Send (USB out).
+  - Aux out (analog physical mono). Usually bound to buses, but can be bound to arbitrary source: channel or bus strips or even USB returns.
+  - USB Send (mono, USB out).
   - Ultranet out.
-  - Main out (physical stereo)
-  - Phones out (physical stereo out for monitoring)
+  - Main out (analog physical stereo). Usually bound to Main LR bus strip.
+  - Phones out (analog physical stereo out for monitoring).
 
 ## Acknowledgements
 
@@ -139,12 +135,9 @@ routing determines where signals originate and where they are delivered in those
 
 ## TODO
 
-- Fix node and property description according to new terminology.
-- Describe snapshot recall scope elements.
 - Channel insert fx slots may conflict with each other. M Air checks for that. Maybe move insert props to the fx.
 - RTA and meters
 - Add installation steps to readme with UV.
-
 
 ## Useful resources
 

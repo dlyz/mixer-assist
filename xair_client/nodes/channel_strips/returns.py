@@ -13,17 +13,17 @@ from ..core.base_types import MixerCollectionNode, MixerNode, MixerNodeFactory
 
 
 class ReturnStripConfig(StripConfig):
-    "Return-strip name and color, as well as selected usb source for the return."
+    "Strip name and color, as well as selected usb source for the return."
 
     usb_source = StereoUsbSourceProperty("rtnsrc")
-    "Id of first usb source in a stereo pair. To be effective requires use_usb_input to be true in return's preamp."
+    "Id of first usb source in a stereo pair. To be effective requires `use_usb_input` to be true in return's `preamp` section."
 
 
 class ReturnStripPreamp(MixerNode):
     use_usb_input = BoolProperty("rtnsw")
 
     usb_trim = LinearFloatProperty("rtntrim", -18.0, 18.0, decimals=1, grid_size=145, units="dB")
-    "Usable only if use_usb_input is true."
+    "Usable only if `use_usb_input` is true."
 
 
 class ReturnStrip(MixerNode):
@@ -34,10 +34,11 @@ class ReturnStrip(MixerNode):
     """
 
     config = MixerNodeFactory("config", ReturnStripConfig)
-    groups = MixerNodeFactory("grp", StripGroups)
     preamp = MixerNodeFactory("preamp", ReturnStripPreamp)
     eq = MixerNodeFactory("eq", ChannelStripEq)
     mix = MixerNodeFactory("mix", ChannelStripMix)
+
+    groups = MixerNodeFactory("grp", StripGroups)
 
 
 class FxReturnPreamp(ReturnStripPreamp):
@@ -46,7 +47,7 @@ class FxReturnPreamp(ReturnStripPreamp):
     """
 
     use_usb_input = BoolProperty("rtnsw")
-    """True if the return strip will receive signal from a USB return (source set in this strip's config section),
+    """True if the return strip will receive signal from a USB return (source set in this strip's `config` section),
     false if it will receive signal from the FX effect assigned to this return slot."""
 
 
@@ -55,7 +56,7 @@ class FxReturn(ReturnStrip):
 
 
 class FxReturns(MixerCollectionNode[FxReturn]):
-    "FX return channels settings."
+    "FX return channel strips settings."
 
     item_type = FxReturn
     item_num_width = 1
@@ -69,13 +70,17 @@ class FxReturns(MixerCollectionNode[FxReturn]):
 class AuxReturnPreamp(ReturnStripPreamp):
     """
     Analog/Usb source switch, usb trim level.
-    The analog source (input) gain is available in mixer's headamps section.
+    The physical analog source (input) gain is available in mixer's `headamps` section (fixed line input headamp).
     """
 
     use_usb_input = BoolProperty("rtnsw")
-    """True if the channel will receive signal from usb return, false - if from analog input.
-    The exact input is set in channel's config section."""
+    """True if the channel strip will receive signal from usb return, false - if from analog input.
+    The exact input is set in strip's `config` section."""
 
 
 class AuxReturn(ReturnStrip):
+    """
+    AUX Return (AUX Channel) channel strip.
+    Can use physical analog line input source or USB source."""
+
     preamp = MixerNodeFactory("preamp", AuxReturnPreamp)

@@ -1,6 +1,6 @@
 from typing import override
 
-from .strips.mix import HifiFaderProperty
+from .strips.mix import FaderProperty
 
 from .core.base_types import MixerCollectionNode, MixerNode, MixerNodeFactory
 from .core.primitive_props import InvertedBoolProperty
@@ -16,7 +16,7 @@ class Dca(MixerNode):
 
     config = MixerNodeFactory("config", DcaConfig)
     mute = InvertedBoolProperty("on")
-    fader = HifiFaderProperty("fader")
+    fader = FaderProperty("fader")
 
 
 class Dcas(MixerCollectionNode[Dca]):

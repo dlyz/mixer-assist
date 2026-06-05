@@ -1,16 +1,14 @@
 from typing import override
 
+from .mix import BusStripMix
 
-from ..core.primitive_props import (
-    BoolProperty,
-    InvertedBoolProperty,
-)
+
+from ..core.primitive_props import BoolProperty
 from ..core.base_types import MixerCollectionNode, MixerNode, MixerNodeFactory
 
 from ..strips.insert import StripInsert
 from ..strips.config import StripConfig
 from ..strips.dynamics import StripDynamics
-from ..strips.mix import HifiFaderProperty
 from ..strips.groups import StripGroups
 from .eq import BusStripGraphicEQ, BusStripEq
 
@@ -44,21 +42,14 @@ class BusConfig(StripConfig):
     """
 
 
-class BusMix(MixerNode):
-    """
-    Bus output section.
-    To tune channel send mix to individual buses see channel's mix section.
-    """
-
-    mute = InvertedBoolProperty("on")
-    fader = HifiFaderProperty("fader")
+class BusMix(BusStripMix):
     send_to_main = BoolProperty("lr")
 
 
 class Bus(MixerNode):
     """
-    Processing sequence in bus strip:
-    input -> insert -> eq/geq -> dynamics -> mix.
+    Processing sequence in a bus:
+    input -> insert -> eq/geq -> dynamics (compressor/expander) -> mix.
     """
 
     config = MixerNodeFactory("config", BusConfig)
@@ -72,7 +63,10 @@ class Bus(MixerNode):
 
 
 class Buses(MixerCollectionNode[Bus]):
-    """Output buses settings. Input per-channel bus settings (channel sends) are a part of mixer's channels mix section."""
+    """
+    Bus settings.
+    Channel strip send mix to these buses is configured in that channel strip's `mix` section.
+    """
 
     item_type = Bus
     item_num_width = 1

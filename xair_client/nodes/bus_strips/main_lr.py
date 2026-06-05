@@ -1,9 +1,11 @@
+from .mix import BusStripMix
+
 from ..strips.config import StripConfig
 
 from ..core.base_types import MixerNode, MixerNodeFactory
-from ..core.primitive_props import EnumIntProperty, InvertedBoolProperty
+from ..core.primitive_props import EnumIntProperty
 
-from ..strips.mix import HifiFaderProperty, PanProperty
+from ..strips.mix import PanProperty
 from ..strips.dynamics import StripDynamicsBase
 from ..strips.insert import StereoInsertFxSlot, StripInsert
 
@@ -18,18 +20,16 @@ class MainLRDynamics(StripDynamicsBase):
     pass
 
 
-class MainLRMix(MixerNode):
-    """
-    Main LR output section.
-    To tune channel send mix to Main LR see channel's mix section.
-    """
-
-    mute = InvertedBoolProperty("on")
-    fader = HifiFaderProperty("fader")
+class MainLRMix(BusStripMix):
     pan = PanProperty("pan")
 
 
 class MainLR(MixerNode):
+    """
+    Main LR bus strip settings.
+    Channel strip send mix to the Main is configured in that channel strip's `mix` section.
+    """
+
     config = MixerNodeFactory("config", StripConfig)
     insert = MixerNodeFactory("insert", MainLRInsert)
     eq = MixerNodeFactory("eq", BusStripEq)

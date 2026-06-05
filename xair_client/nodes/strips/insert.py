@@ -55,6 +55,8 @@ class StereoInsertFxSlot(IntEnum):
 
 
 class StripInsert(MixerNode):
+    """Effect insert settings."""
+
     enabled = BoolProperty("on")
     "For insert to take effect it is also required to activate insert mode on fx itself."
 

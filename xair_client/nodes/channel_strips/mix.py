@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import override
 
-from ..strips.mix import FaderProperty, HifiFaderProperty, PanProperty
+from ..strips.mix import LevelProperty, FaderProperty, PanProperty
 
 
 from ..core.base_types import MixerCollectionNode, MixerNode, MixerNodeFactory
@@ -10,7 +10,7 @@ from ..core.primitive_props import BoolProperty, EnumIntProperty, InvertedBoolPr
 
 class ChannelStripBusSend(MixerNode):
     class Tap(IntEnum):
-        """The stage at which the signal from the channel is sent to the bus.
+        """The stage at which the signal from the channel strip is sent to the Bus.
         Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> main fader.
         """
 
@@ -36,7 +36,7 @@ class ChannelStripBusSend(MixerNode):
         """Fixed unity gain (0dB) send.
         Disables 'level' fader; uses 'send_to_subgroup' as an On/Off toggle."""
 
-    level = FaderProperty("level")
+    level = LevelProperty("level")
     "Channel fader level for the bus. Ignored when tap is SUB_GROUP."
 
     pan = PanProperty("pan")
@@ -72,7 +72,7 @@ class ChannelStripBusMix(MixerCollectionNode[ChannelStripBusSend]):
 
 class ChannelStripFxSend(MixerNode):
     class Tap(IntEnum):
-        """The stage at which the signal from the channel is sent to the fx.
+        """The stage at which the signal from the channel strip is sent to the FX Send bus strip.
         Sequence is: preamp (input) -> low cut -> gate -> insert -> eq -> dynamics (compressor/expander) -> main fader.
         """
 
@@ -94,8 +94,8 @@ class ChannelStripFxSend(MixerNode):
         """After the Main Channel Fader.
         Send level changes proportionally with the main mix fader."""
 
-    level = FaderProperty("level")
-    "Channel fader level for the fx."
+    level = LevelProperty("level")
+    "Channel fader level for the FX Send."
 
     tap = EnumIntProperty("tap", Tap)
 
@@ -105,7 +105,7 @@ class ChannelStripFxSend(MixerNode):
 
 
 class ChannelStripFxMix(MixerCollectionNode[ChannelStripFxSend]):
-    "Mix settings for each individual fx bus."
+    "Mix (send) settings for each individual FX Send bus strip."
 
     item_type = ChannelStripFxSend
 
@@ -117,10 +117,10 @@ class ChannelStripFxMix(MixerCollectionNode[ChannelStripFxSend]):
 
 
 class ChannelStripMix(MixerNode):
-    "Global channel mute and mixes for all bus strips: main (lr), buses, fx sends."
+    "Global channel strip mute and mixes (sends) for all bus strips: main (lr), buses, fx sends."
 
     mute = InvertedBoolProperty("on")
-    main_fader = HifiFaderProperty("fader")
+    main_fader = FaderProperty("fader")
     main_pan = PanProperty("pan")
     send_to_main = BoolProperty("lr")
     bus_sends = MixerNodeFactory("", ChannelStripBusMix)

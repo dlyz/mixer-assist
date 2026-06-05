@@ -170,6 +170,7 @@ class SnapshotRecallGlobalSetting(_SnapshotRecallEnum):
         return cls.dcas() | cls.fx_slots() | {cls.MIXER_IN_OUT, cls.MIXER_CONFIG}
 
 
+# TODO: describe scope elements
 RECALL_SCOPE_DESCRIPTION = f"""
 Scope that will be applied to the mixer state during the snapshot loading. Doesn't impact saving, save is always complete.
 

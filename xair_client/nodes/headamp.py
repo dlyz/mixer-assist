@@ -6,9 +6,9 @@ from .core.base_types import MixerCollectionNode, MixerNode
 
 
 class HeadAmp(MixerNode):
-    """Settings for the mixer's physical input's preamp.
+    """Settings for the mixer's physical analog input's preamp.
     CAUTION: changing this parameters may be unsafe. Be sure you know what you are doing.
-    Input is assigned to the channel in the channel's config section."""
+    Input is assigned to the channel in the channel's `config` section."""
 
     gain = LinearFloatProperty("gain", -12.0, 60.0, decimals=1, grid_size=145, units="dB")
     phantom = BoolProperty(
@@ -18,13 +18,15 @@ class HeadAmp(MixerNode):
 
 
 class LineHeadAmp(MixerNode):
-    """Settings for the mixer's physical line input.
-    Input is assigned to the channel in the channel's config section."""
+    """Settings for the mixer's physical analog line input.
+    Input is assigned to the channel in the channel's `config` section."""
 
     gain = LinearFloatProperty("gain", -12.0, 20.0, decimals=1, grid_size=65, units="dB")
 
 
 class HeadAmps(MixerCollectionNode[HeadAmp | LineHeadAmp]):
+    """Settings for the mixer's physical analog input's preamps."""
+
     item_type = None
 
     @override

@@ -40,7 +40,7 @@ class SidechainKeySource(CodecType):
         text = value.strip().lower()
         if text == "self":
             return cls(SidechainKeySourceKind.SELF)
-        channel_match = re.fullmatch(r"(?:ch|chan|channel)\s*[:#/\-]?\s*(\d+)", text)
+        channel_match = re.fullmatch(r"(?:ch|chan|chn|channel)\s*[:#/\-]?\s*(\d+)", text)
         if channel_match is not None:
             return cls(SidechainKeySourceKind.CHANNEL, int(channel_match.group(1)))
         bus_match = re.fullmatch(r"(?:bus)\s*[:#/\-]?\s*(\d+)", text)

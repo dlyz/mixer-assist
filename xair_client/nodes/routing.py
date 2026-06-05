@@ -60,14 +60,14 @@ class RoutingUsbSource(IntEnum):
     CH_16 = 15
     AUX_L = 16
     AUX_R = 17
-    FX_1L = 18
-    FX_1R = 19
-    FX_2L = 20
-    FX_2R = 21
-    FX_3L = 22
-    FX_3R = 23
-    FX_4L = 24
-    FX_4R = 25
+    FX_RETURN_1_L = 18
+    FX_RETURN_1_R = 19
+    FX_RETURN_2_L = 20
+    FX_RETURN_2_R = 21
+    FX_RETURN_3_L = 22
+    FX_RETURN_3_R = 23
+    FX_RETURN_4_L = 24
+    FX_RETURN_4_R = 25
     BUS_1 = 26
     BUS_2 = 27
     BUS_3 = 28
@@ -101,14 +101,14 @@ class RoutingInputSource(IntEnum):
     CH_16 = 15
     AUX_L = 16
     AUX_R = 17
-    FX_1L = 18
-    FX_1R = 19
-    FX_2L = 20
-    FX_2R = 21
-    FX_3L = 22
-    FX_3R = 23
-    FX_4L = 24
-    FX_4R = 25
+    FX_RETURN_1_L = 18
+    FX_RETURN_1_R = 19
+    FX_RETURN_2_L = 20
+    FX_RETURN_2_R = 21
+    FX_RETURN_3_L = 22
+    FX_RETURN_3_R = 23
+    FX_RETURN_4_L = 24
+    FX_RETURN_4_R = 25
     BUS_1 = 26
     BUS_2 = 27
     BUS_3 = 28
@@ -166,7 +166,9 @@ class RoutingUsbOut(MixerNode):
 
 
 class RoutingAuxOuts(MixerCollectionNode[RoutingOut]):
-    "Aux out routing taps and sources."
+    "Aux outs (analog physical mono) routing taps and sources."
+
+    "Usually bound to buses, but can be bound to arbitrary source: channel or bus strips or even USB returns."
 
     item_type = RoutingOut
     item_num_width = 2
@@ -190,7 +192,7 @@ class RoutingUltranetOuts(MixerCollectionNode[RoutingOut]):
 
 
 class RoutingUsbOuts(MixerCollectionNode[RoutingUsbOut]):
-    "USB out routing taps and sources."
+    "USB out (USB send, mono) routing taps and sources."
 
     item_type = RoutingUsbOut
     item_num_width = 2
@@ -206,10 +208,19 @@ class RoutingMainOut(MixerNode):
 
 
 class Routing(MixerNode):
-    "Routing taps and sources for following outs: aux, main, phones, usb, ultranet."
+    """
+    Routing taps and sources for following destinations (Outs): aux, main, phones, usb, ultranet.
+    One strip could be routed to multiple destinations.
+    """
 
     aux = MixerNodeFactory("aux", RoutingAuxOuts)
+
     main = MixerNodeFactory("main/01", RoutingMainOut, description="Main out routing source")
+    """Main out (analog physical stereo) routing taps and sources. Usually bound to Main LR bus strip."""
+
     phones = MixerNodeFactory("main/02", RoutingMainOut, description="Phones out routing source")
+    """Phones out (analog physical stereo out for monitoring) routing taps and sources."""
+
     usb = MixerNodeFactory("usb", RoutingUsbOuts)
+
     ultranet = MixerNodeFactory("p16", RoutingUltranetOuts)

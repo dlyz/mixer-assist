@@ -71,12 +71,12 @@ class Fx(MixerNode):
     insert_mode = BoolProperty("insert")
     """
     Is fx in an insert mode.
-    Have to be enabled and inserted in required channel/bus config in order to be effective.
+    Have to be enabled and inserted in required channel/bus `config` section in order to be effective.
     """
 
     effect_type = EnumIntProperty("type", FxType)
 
-    effect_params = FxParamsNodeProvider("par", description_suffix="\nParameter set changes when effect_type changes.")
+    effect_params = FxParamsNodeProvider("par", description_suffix="\nParameter set changes after effect_type change.")
 
 
 class Fxes(MixerCollectionNode[Fx]):
