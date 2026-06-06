@@ -17,6 +17,10 @@ class LevelProperty(FloatProperty):
     def level_to_fader_hight(level: float):
         return max(0, level - LevelProperty.MINIMUM)
 
+    @staticmethod
+    def fader_hight_to_level(hight: float):
+        return LevelProperty.MINIMUM + max(0, hight)
+
     def __init__(
         self,
         address_segment: MixerPropertyAddressLike,

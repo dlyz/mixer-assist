@@ -46,4 +46,6 @@ def copy_mix(
             multiplier = 1.0
 
         for mix, level in zip(mixes, source_levels):
-            mix.bus_sends[target_bus].level = LevelProperty.clamp_level(level * multiplier)
+            new_hight = LevelProperty.level_to_fader_hight(level) * multiplier
+            new_level = LevelProperty.fader_hight_to_level(new_hight)
+            mix.bus_sends[target_bus].level = LevelProperty.clamp_level(new_level)
